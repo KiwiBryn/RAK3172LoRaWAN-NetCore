@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 //---------------------------------------------------------------------------------
-namespace devMobile.IoT.NetCore.RAK3172.ShieldSerial
+namespace devMobile.IoT.NetCore.RAK3172.BreakoutSerial
 {
 	using System;
 	using System.Diagnostics;

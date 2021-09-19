@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31702.278
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShieldSerial", "ShieldSerial\ShieldSerial.csproj", "{7E8D5FF8-3064-4585-8F6E-E7BF8175E000}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "00.BreakoutSerial", "ShieldSerial\00.BreakoutSerial.csproj", "{7E8D5FF8-3064-4585-8F6E-E7BF8175E000}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkJoinOTAA", "NetworkJoinOTAA\NetworkJoinOTAA.csproj", "{17DBFF66-CBF6-42A8-9001-13B762E5748B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{7E8D5FF8-3064-4585-8F6E-E7BF8175E000}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E8D5FF8-3064-4585-8F6E-E7BF8175E000}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7E8D5FF8-3064-4585-8F6E-E7BF8175E000}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17DBFF66-CBF6-42A8-9001-13B762E5748B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17DBFF66-CBF6-42A8-9001-13B762E5748B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17DBFF66-CBF6-42A8-9001-13B762E5748B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17DBFF66-CBF6-42A8-9001-13B762E5748B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
