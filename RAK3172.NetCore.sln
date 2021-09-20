@@ -5,9 +5,13 @@ VisualStudioVersion = 16.0.31702.278
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "00.BreakoutSerial", "ShieldSerial\00.BreakoutSerial.csproj", "{7E8D5FF8-3064-4585-8F6E-E7BF8175E000}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "01.NetworkJoinOTAA", "NetworkJoinOTAA\01.NetworkJoinOTAA.csproj", "{17DBFF66-CBF6-42A8-9001-13B762E5748B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "01.NetworkJoinOTAA", "NetworkJoinOTAA\01.NetworkJoinOTAA.csproj", "{17DBFF66-CBF6-42A8-9001-13B762E5748B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkJoinABP", "NetworkJoinABP\NetworkJoinABP.csproj", "{43B98294-E277-477F-B926-7D5EF138F0C8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetworkJoinABP", "NetworkJoinABP\NetworkJoinABP.csproj", "{43B98294-E277-477F-B926-7D5EF138F0C8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RAK3172LoRaWANDevice", "RAK3172LoRaWANDevice\RAK3172LoRaWANDevice.csproj", "{A23D34A0-D233-40BA-B2D6-78D4365A7170}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RAK3712LoRaWANDeviceClient", "RAK3712LoRaWANDeviceClient\RAK3712LoRaWANDeviceClient.csproj", "{BDDF50A1-EDC4-45D0-8E94-E61BCD61B0A1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +31,14 @@ Global
 		{43B98294-E277-477F-B926-7D5EF138F0C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{43B98294-E277-477F-B926-7D5EF138F0C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{43B98294-E277-477F-B926-7D5EF138F0C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A23D34A0-D233-40BA-B2D6-78D4365A7170}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A23D34A0-D233-40BA-B2D6-78D4365A7170}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A23D34A0-D233-40BA-B2D6-78D4365A7170}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A23D34A0-D233-40BA-B2D6-78D4365A7170}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDDF50A1-EDC4-45D0-8E94-E61BCD61B0A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDDF50A1-EDC4-45D0-8E94-E61BCD61B0A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDDF50A1-EDC4-45D0-8E94-E61BCD61B0A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDDF50A1-EDC4-45D0-8E94-E61BCD61B0A1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
