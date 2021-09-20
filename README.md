@@ -12,6 +12,6 @@ I used a [Grove Base HAT for Raspberry Pi](https://www.seeedstudio.com/Grove-Bas
 ![Grove Base Hat for RaspberryPI connected RAK3127](RRPI3Rak3172.jpg)
 
 [The Things Network](https://www.thethingsnetwork.org/) uplink and downlink messaging 
-![TTN Uplink and downlink messaging](TTIConnectTTIAndSend.PNG)
+![TTN Uplink and downlink messaging](TTIConnectAndSend.PNG)
 
 I used a local [RAK7258 WisGate Edge Lite](https://store.rakwireless.com/collections/wisgate-edge/products/rak7258-micro-gateway) connected to [The Things Network](https://www.thethingsnetwork.org/) to test my implementation.
