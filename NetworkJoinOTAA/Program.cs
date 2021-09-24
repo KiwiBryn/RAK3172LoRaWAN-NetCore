@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 //---------------------------------------------------------------------------------
-namespace devMobile.IoT.NetCore.RAK3172.NetworkJoinOTAA
+namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 {
 	using System;
 	using System.Diagnostics;
@@ -33,7 +33,7 @@ namespace devMobile.IoT.NetCore.RAK3172.NetworkJoinOTAA
 		{
 			string response;
 
-			Debug.WriteLine("devMobile.IoT.NetCore.Rak3172.NetworkJoinOTAA starting");
+			Debug.WriteLine("devMobile.IoT.LoRaWAN.NetCore.RAK3172 NetworkJoinOTAA starting");
 
 			Debug.WriteLine(String.Join(",", SerialPort.GetPortNames()));
 
