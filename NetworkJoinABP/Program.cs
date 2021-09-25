@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 //---------------------------------------------------------------------------------
-namespace devMobile.IoT.NetCore.RAK3172.NetworkJoinABP
+namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 {
 	using System;
 	using System.Diagnostics;
@@ -34,7 +34,7 @@ namespace devMobile.IoT.NetCore.RAK3172.NetworkJoinABP
 		{
 			string response;
 
-			Debug.WriteLine("devMobile.IoT.NetCore.Rak3172.NetworkJoinOTAA starting");
+			Debug.WriteLine("devMobile.IoT.LoRaWAN.NetCore.RAK3172 NetworkJoinABP starting");
 
 			Debug.WriteLine(String.Join(",", SerialPort.GetPortNames()));
 
@@ -96,18 +96,18 @@ namespace devMobile.IoT.NetCore.RAK3172.NetworkJoinABP
 					response = serialPort.ReadLine();
 					Debug.WriteLine($"RX :{response.Trim()} bytes:{response.Length}");
 
-					// Set the network session key
-					Console.WriteLine("Set Network Session Key");
-					serialPort.WriteLine($"AT+NWKSKEY={NwksKey}");
+					// Set the application session key
+					Console.WriteLine("Set application Session Key");
+					serialPort.WriteLine($"AT+APPSKEY={AppsKey}");
 					// Read the blank line
 					response = serialPort.ReadLine();
 					// Read the response
 					response = serialPort.ReadLine();
 					Debug.WriteLine($"RX :{response.Trim()} bytes:{response.Length}");
 
-					// Set the application session key
-					Console.WriteLine("Set application Session Key");
-					serialPort.WriteLine($"AT+APPSKEY={AppsKey}");
+					// Set the network session key
+					Console.WriteLine("Set Network Session Key");
+					serialPort.WriteLine($"AT+NWKSKEY={NwksKey}");
 					// Read the blank line
 					response = serialPort.ReadLine();
 					// Read the response
@@ -135,7 +135,7 @@ namespace devMobile.IoT.NetCore.RAK3172.NetworkJoinABP
 					Debug.WriteLine($"RX :{response.Trim()} bytes:{response.Length}");
 
 					Thread.Sleep(10000);
-
+					
 					// Read the +EVT:JOINED
 					response = serialPort.ReadLine();
 					Debug.WriteLine($"RX :{response.Trim()} bytes:{response.Length}");
