@@ -349,7 +349,6 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
          return Result.Success;
       }
 
-      /*
       public Result AbpInitialise(string devAddr, string nwksKey, string appsKey)
       {
          Result result;
@@ -369,59 +368,58 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 
          // Set the JoinMode to ABP
 #if DIAGNOSTICS
-         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} lora:join_mode:1");
+         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+NJM=0");
 #endif
-         result = SendCommand("OK", $"at+set_config=lora:join_mode:1", CommandTimeoutDefault);
+         result = SendCommand("OK", $"AT+NJM=0", CommandTimeoutDefault);
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
-            Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} lora:join_mode failed {result}" );
+            Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+NJM=0 failed {result}" );
 #endif
             return result;
          }
 
          // set the devAddr
 #if DIAGNOSTICS
-         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} lora:devAddr {devAddr}");
+         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+DEVADDR={devAddr}");
 #endif
-         result = SendCommand("OK", $"at+set_config=lora:dev_addr:{devAddr}", CommandTimeoutDefault);
+         result = SendCommand("OK", $"AT+DEVADDR={devAddr}", CommandTimeoutDefault);
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
-            Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} lora:dev_addr failed {result}");
+            Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+DEVADDR failed {result}");
 #endif
             return result;
          }
 
          // Set the nwsKey
 #if DIAGNOSTICS
-         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} lora:nwks_Key:{nwksKey}");
+         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+NWKSKEY={nwksKey}");
 #endif
-         result = SendCommand("OK", $"at+set_config=lora:nwks_key:{nwksKey}", CommandTimeoutDefault);
+         result = SendCommand("OK", $"AT+NWKSKEY={nwksKey}", CommandTimeoutDefault);
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
-            Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} lora:nwksKey failed {result}");
+            Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+NWKSKEY failed {result}");
 #endif
             return result;
          }
 
          // Set the appsKey
 #if DIAGNOSTICS
-         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} lora:apps_key:{appsKey}");
+         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+APPSKEY={appsKey}");
 #endif
-         result = SendCommand("OK", $"at+set_config=lora:apps_key:{appsKey}", CommandTimeoutDefault);
+         result = SendCommand("OK", $"AT+APPSKEY={appsKey}", CommandTimeoutDefault);
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
-            Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} lora:apps_key failed {result}");
+            Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+APPSKEY failed {result}");
 #endif
             return result;
          }
 
          return Result.Success;
       }
-      */
 
       public Result OtaaInitialise(string appEui, string appKey)
       {
@@ -484,14 +482,14 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 
          // Join the network
 #if DIAGNOSTICS
-         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} join");
+         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+JOIN");
 #endif
          // TODO - Options 
          result = SendCommand("OK", $"AT+JOIN=1:0:10:2", timeout);
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
-            Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} join failed {result}");
+            Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+JOIN failed {result}");
 #endif
             return result;
          }
@@ -517,13 +515,13 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 
          // Send message the network
 #if DIAGNOSTICS
-         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} Send port:{port} payload {payload} timeout {timeout.TotalSeconds} seconds");
+         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+SEND={port}:payload {payload} timeout {timeout.TotalSeconds} seconds");
 #endif
          result = SendCommand("OK", $"AT+SEND={port}:{payload}", timeout);
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
-            Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} send failed {result}");
+            Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+SEND failed {result}");
 #endif
             return result;
          }
@@ -549,9 +547,9 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 
          // Send message the network
 #if DIAGNOSTICS
-         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} Send port:{port} payload {payloadBcd} timeout {timeout.TotalSeconds} seconds");
+         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+SEND=:{port} payload {payloadBcd} timeout {timeout.TotalSeconds} seconds");
 #endif
-         result = SendCommand("OK", $"at+send=lora:{port}:{payloadBcd}", timeout);
+         result = SendCommand("OK", $"AT+SEND={port}:{payloadBcd}", timeout);
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
