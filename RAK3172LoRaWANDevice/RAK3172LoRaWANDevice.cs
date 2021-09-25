@@ -177,7 +177,6 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
          return Result.Success;
       }
 
-      /*
       public Result Class(LoRaClass loRaClass)
       {
          string command;
@@ -185,14 +184,13 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
          switch (loRaClass)
          {
             case LoRaClass.A:
-               command = "at+set_config=lora:class:0";
+               command = "AT+CLASS=A";
                break;
-            // Currently ClassB unsupported
-            //case LoRaClass.B;
-            //   command = "at+set_config=lora:class:1";
-            //   break;
+            case LoRaClass.B:
+               command = "AT+CLASS=B";
+               break;
             case LoRaClass.C:
-               command = "at+set_config=lora:class:2";
+               command = "AT+CLASS=C";
                break;
             default:
                throw new ArgumentException($"LoRa class value {loRaClass} invalid", nameof(loRaClass));
@@ -200,13 +198,13 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 
          // Set the class
 #if DIAGNOSTICS
-         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} lora:class:{loRaClass}");
+         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+CLASS={loRaClass}");
 #endif
          Result result = SendCommand("OK", command, CommandTimeoutDefault);
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
-            Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} lora:class failed {result}");
+            Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+CLASS failed {result}");
 #endif
             return result;
          }
@@ -214,6 +212,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
          return Result.Success;
       }
 
+      /*
       public Result Confirm(LoRaConfirmType loRaConfirmType)
       {
          string command;
@@ -255,14 +254,14 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 
       public Result Band(string band)
       {
-         // TOD Tweak validation
+         // TODO Tweak validation so it works with AS923-1 etc. length 3 or five maybe
          //if (band.Length != RegionIDLength)
          //{
          //   throw new ArgumentException($"BandID {band} length {band.Length} invalid", nameof(band));
          //}
 
 #if DIAGNOSTICS
-         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+BAND:{band}");
+         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+BAND={band}");
 #endif
          Result result = SendCommand("OK", $"AT+BAND={band}", CommandTimeoutDefault);
          if (result != Result.Success)
@@ -318,13 +317,13 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
       {
          // Adaptive Data Rate off
 #if DIAGNOSTICS
-         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} ADR=0");
+         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+ADR=0");
 #endif
          Result result = SendCommand("OK", $"AT+ADR=0", CommandTimeoutDefault);
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
-            Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} lora:adr failed {result}");
+            Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+ADR=0 failed {result}");
 #endif
             return result;
          }
@@ -336,13 +335,13 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
       {
          // Adaptive Data Rate on
 #if DIAGNOSTICS
-         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} ADR=1");
+         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+ADR=1");
 #endif
          Result result = SendCommand("OK", $"AT+ADR=1", CommandTimeoutDefault);
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
-            Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} lora:adr failed {result}");
+            Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+ADR=1 {result}");
 #endif
             return result;
          }
@@ -452,26 +451,26 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 
          // Set the appEUI
 #if DIAGNOSTICS
-         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} lora:app_eui:{appEui}");
+         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+APPEUI={appEui}");
 #endif
          result = SendCommand("OK", $"AT+APPEUI={appEui}", CommandTimeoutDefault);
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
-            Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} lora:devEui failed {result}");
+            Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+APPEUI= failed {result}");
 #endif
             return result;
          }
 
          // Set the appKey
 #if DIAGNOSTICS
-         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} lora:app_key:{appKey}");
+         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+APPKEY={appKey}");
 #endif
          result = SendCommand("OK", $"AT+APPKEY={appKey}", CommandTimeoutDefault);
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
-            Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} lora:app_key failed {result}");
+            Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+APPKEY= failed {result}");
 #endif
             return result;
          }

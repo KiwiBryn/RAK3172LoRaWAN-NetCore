@@ -32,6 +32,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 	public class Program
 	{
 		private const string SerialPortId = "/dev/ttyS0";
+		private const LoRaClass Class = LoRaClass.A;
 		private const string Region = "8-1";
 		private static readonly TimeSpan JoinTimeOut = new TimeSpan(0, 0, 10);
 		private static readonly TimeSpan SendTimeout = new TimeSpan(0, 0, 10);
@@ -67,6 +68,15 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 #endif
 					device.OnReceiveMessage += OnReceiveMessageHandler;
 					device.onJoinCompletion += onJoinCompletionHandler;
+
+					Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Class {Class}");
+					result = device.Class(Class);
+					if (result != Result.Success)
+					{
+						Debug.WriteLine($"Region failed {result}");
+						return;
+					}
+
 
 					Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Band {Region}");
 					result = device.Band(Region);
