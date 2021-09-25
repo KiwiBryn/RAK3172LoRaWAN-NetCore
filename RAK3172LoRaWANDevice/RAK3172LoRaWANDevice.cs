@@ -314,14 +314,13 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
       }
       */
 
-      /*
       public Result AdrOff()
       {
          // Adaptive Data Rate off
 #if DIAGNOSTICS
-         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} lora:adr:0");
+         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} ADR=0");
 #endif
-         Result result = SendCommand("OK", $"at+set_config=lora:adr:0", CommandTimeoutDefault);
+         Result result = SendCommand("OK", $"AT+ADR=0", CommandTimeoutDefault);
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
@@ -337,9 +336,9 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
       {
          // Adaptive Data Rate on
 #if DIAGNOSTICS
-         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} lora:adr:1");
+         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} ADR=1");
 #endif
-         Result result = SendCommand("OK", $"at+set_config=lora:adr:1", CommandTimeoutDefault);
+         Result result = SendCommand("OK", $"AT+ADR=1", CommandTimeoutDefault);
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
@@ -350,7 +349,6 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 
          return Result.Success;
       }
-      */
 
       /*
       public Result AbpInitialise(string devAddr, string nwksKey, string appsKey)

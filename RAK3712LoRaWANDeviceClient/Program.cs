@@ -76,8 +76,6 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 						return;
 					}
 
-					// TODO
-/*
 					Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} ADR On");
 					result = device.AdrOn();
 					if (result != Result.Success)
@@ -85,7 +83,6 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 						Debug.WriteLine($"ADR on failed {result}");
 						return;
 					}
-*/
 
 					// TODO
 /*
