@@ -125,17 +125,15 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 					}
 #endif
 
-					/*
 #if ABP
                Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} ABP");
-               result = device.AbpInitialise(DevAddress, NwksKey, AppsKey);
+               result = device.AbpInitialise(Config.DevAddress, Config.NwksKey, Config.AppsKey);
                if (result != Result.Success)
                {
                   Debug.WriteLine($"ABP Initialise failed {result}");
                   return;
                }
 #endif
-					*/
 
 					//Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Join start Timeout:{JoinTimeOut:hh:mm:ss}");
 					result = device.Join(JoinTimeOut);
@@ -153,7 +151,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 						result = device.Send(MessagePort, PayloadBcd, SendTimeout);
 #endif
 #if PAYLOAD_BYTES
-                  Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Send Timeout:{SendTimeout:hh:mm:ss} port:{MessagePort} payload Bytes:{BitConverter.ToString(PayloadBytes)}");
+                  //Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Send Timeout:{SendTimeout:hh:mm:ss} port:{MessagePort} payload Bytes:{BitConverter.ToString(PayloadBytes)}");
                   result = device.Send(MessagePort, PayloadBytes, SendTimeout);
 #endif
 						if (result != Result.Success)
