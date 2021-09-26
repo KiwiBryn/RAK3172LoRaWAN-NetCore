@@ -33,15 +33,15 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 	{
 		private const string SerialPortId = "/dev/ttyS0";
 		private const LoRaClass Class = LoRaClass.A;
-		private const string Region = "8-1";
-		private static readonly TimeSpan JoinTimeOut = new TimeSpan(0, 0, 10);
-		private static readonly TimeSpan SendTimeout = new TimeSpan(0, 0, 10);
-		private const byte MessagePort = 1;
+		private const string Band = "8-1";
+		private static readonly TimeSpan JoinTimeOut = new TimeSpan(0, 0, 30);
+		private const byte MessagePort = 10;
+		private static Timer SendTimer ;
 #if PAYLOAD_BCD
-		private const string PayloadBcd = "48656c6c6f204c6f526157414e"; // Hello LoRaWAN in BCD
+		private const string PayloadBcd = ""; //"48656c6c6f204c6f526157414e"; // Hello LoRaWAN in BCD
 #endif
 #if PAYLOAD_BYTES
-      private static readonly byte[] PayloadBytes = { 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x4c, 0x6f, 0x52, 0x61, 0x57, 0x41, 0x4e}; // Hello LoRaWAN in bytes
+		private static readonly byte[] PayloadBytes = { 0x65 , 0x6c, 0x6c, 0x6f, 0x20, 0x4c, 0x6f, 0x52, 0x61, 0x57, 0x41, 0x4e}; // Hello LoRaWAN in bytes
 #endif
 
 		public static void Main()
@@ -63,11 +63,13 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 						return;
 					}
 
-#if CONFIRMED
-               device.OnMessageConfirmation += OnMessageConfirmationHandler;
-#endif
+					SendTimer = new Timer(TimerCallback, device,Timeout.Infinite, Timeout.Infinite);
+
+					device.OnJoinCompletion += OnJoinCompletionHandler;
 					device.OnReceiveMessage += OnReceiveMessageHandler;
-					device.onJoinCompletion += onJoinCompletionHandler;
+#if CONFIRMED
+					device.OnMessageConfirmation += OnMessageConfirmationHandler;
+#endif
 
 					Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Class {Class}");
 					result = device.Class(Class);
@@ -78,8 +80,8 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 					}
 
 
-					Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Band {Region}");
-					result = device.Band(Region);
+					Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Band {Band}");
+					result = device.Band(Band);
 					if (result != Result.Success)
 					{
 						Debug.WriteLine($"Region failed {result}");
@@ -94,8 +96,6 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 						return;
 					}
 
-					// TODO
-/*
 #if CONFIRMED
                Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Confirmed");
                result = device.Confirm(LoRaConfirmType.Confirmed);
@@ -113,7 +113,6 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 						return;
 					}
 #endif
-*/
 
 #if OTAA
 					Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} OTAA");
@@ -135,7 +134,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
                }
 #endif
 
-					//Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Join start Timeout:{JoinTimeOut:hh:mm:ss}");
+					Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Join start");
 					result = device.Join(JoinTimeOut);
 					if (result != Result.Success)
 					{
@@ -144,48 +143,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 					}
 					Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Join finish");
 
-					while (true)
-					{
-#if PAYLOAD_BCD
-						//Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Send Timeout:{SendTimeout:hh:mm:ss} port:{MessagePort} payload BCD:{PayloadBcd}");
-						result = device.Send(MessagePort, PayloadBcd, SendTimeout);
-#endif
-#if PAYLOAD_BYTES
-                  //Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Send Timeout:{SendTimeout:hh:mm:ss} port:{MessagePort} payload Bytes:{BitConverter.ToString(PayloadBytes)}");
-                  result = device.Send(MessagePort, PayloadBytes, SendTimeout);
-#endif
-						if (result != Result.Success)
-						{
-							Debug.WriteLine($"Send failed {result}");
-						}
-
-						/*
-						// if we sleep module too soon response is missed
-						Thread.Sleep(new TimeSpan(0,0,5));
-
-						Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Sleep");
-						result = device.Sleep();
-						if (result != Result.Success)
-						{
-							Debug.WriteLine($"Sleep failed {result}");
-							return;
-						}
-						*/
-						//Thread.Sleep(new TimeSpan(0, 5, 0));
-						Thread.Sleep(new TimeSpan(0, 0, 30));
-						/*
-						Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Wakeup");
-						result = device.Wakeup();
-						if (result != Result.Success)
-						{
-							Debug.WriteLine($"Wakeup failed {result}");
-							return;
-						}
-
-						// if we send too soon after wakeup issues
-						Thread.Sleep(new TimeSpan(0, 0, 10));
-						*/
-					}
+					Thread.Sleep(Timeout.Infinite);
 				}
 			}
 			catch (Exception ex)
@@ -194,31 +152,38 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 			}
 		}
 
-		static void onJoinCompletionHandler(bool result)
+		static void OnJoinCompletionHandler(bool result)
 		{
+			Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Join result:{result}");
+
 			if (result)
-			{
-				Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Join successful");
+			{ 
+				SendTimer.Change(30000, 30000);
 			}
-			else
+		}
+
+		static void TimerCallback(object state)
+		{
+			Rak3172LoRaWanDevice device = (Rak3172LoRaWanDevice)state;
+
+#if PAYLOAD_BCD
+			Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} port:{MessagePort} payload BCD:{PayloadBcd}");
+			Result result = device.Send(MessagePort, PayloadBcd );
+#endif
+#if PAYLOAD_BYTES
+			Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} port:{MessagePort}");
+         Result result = device.Send(MessagePort, PayloadBytes);
+#endif
+			if (result != Result.Success)
 			{
-				Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Join failed");
+				Debug.WriteLine($"Send failed {result}");
 			}
 		}
 
 #if CONFIRMED
-		//static void OnMessageConfirmationHandler(int rssi, int snr)
-		static void OnMessageConfirmationHandler(bool result)
+		static void OnMessageConfirmationHandler()
       {
-			//Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Send Confirm RSSI:{rssi} SNR:{snr}");
-			if (result)
-			{
-				Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Send successful");
-			}
-			else
-			{
-				Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Send failed");
-			}
+			Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Send successful");
 		}
 #endif
 

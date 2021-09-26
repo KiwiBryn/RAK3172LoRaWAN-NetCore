@@ -35,44 +35,20 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
       Undefined = 0,
       Unconfirmed,
       Confirmed,
-      Multicast,
-      Proprietary
    }
 
    public enum Result
    {
       Undefined = 0,
       Success,
-      ResponseInvalid,
-      ATResponseTimeout,
-      ATCommandUnsuported,
-      ATCommandInvalidParameter,
-      ErrorReadingOrWritingFlash,
-      LoRaBusy,
-      LoRaServiceIsUnknown,
-      LoRaParameterInvalid,
-      LoRaFrequencyInvalid,
-      LoRaDataRateInvalid,
-      LoRaFrequencyAndDataRateInvalid,
-      LoRaDeviceNotJoinedNetwork,
-      LoRaPacketToLong,
-      LoRaServiceIsClosedByServer,
-      LoRaRegionUnsupported,
-      LoRaDutyCycleRestricted,
-      LoRaNoValidChannelFound,
-      LoRaNoFreeChannelFound,
-      StatusIsError,
-      LoRaTransmitTimeout,
-      LoRaRX1Timeout,
-      LoRaRX2Timeout,
-      LoRaRX1ReceiveError,
-      LoRaRX2ReceiveError,
-      LoRaJoinFailed,
-      LoRaDownlinkRepeated,
-      LoRaPayloadSizeNotValidForDataRate,
-      LoRaTooManyDownlinkFramesLost,
-      LoRaAddressFail,
-      LoRaMicVerifyError,
+      Timeout,
+      Error,
+      ParameterError,
+      BusyError,
+      ParameterOverflow,
+      NotJoined,
+      ReceiveError,
+      DutyCycleRestricted
    }
 
    public sealed class Rak3172LoRaWanDevice : IDisposable
@@ -88,47 +64,29 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
       public const ushort AppsKeyLength = 32;
       public const ushort MessagePortMinimumValue = 1;
       public const ushort MessagePortMaximumValue = 223;
-      public const ushort MessageBytesMinimumLength = 1;
-      public const ushort MessageBytesMaximumLength = 242;
-      public const ushort MessageBcdMinimumLength = 1;
-      public const ushort MessageBcdMaximumLength = 484;
 
-      public readonly TimeSpan SendTimeoutMinimum = new TimeSpan(0, 0, 1);
-      public readonly TimeSpan SendTimeoutMaximum = new TimeSpan(0, 0, 10);
-
-      public readonly TimeSpan JoinTimeoutMinimum = new TimeSpan(0, 0, 1);
-      public readonly TimeSpan JoinTimeoutMaximum = new TimeSpan(0, 0, 20);
-
-      private const string EndOfLineMarker = "\r\n";
-      private const string JoinMarkerSuccess = "+EVT:JOINED";
-      private const string JoinMarkerFailure = "+EVT:FAILED";
-
-      private const string ConfirmedMarkerSuccess = "+EVT:SEND CONFIRMED OK";
-      private const string ConfirmedMarkerFailure = "+EVT:SEND CONFIRMED FAILED";
-
-      private const string ErrorMarker = "ERROR:";
-      private const string ReplyMarker = "AT+RECV";
       private readonly TimeSpan CommandTimeoutDefault = new TimeSpan(0, 0, 3);
 
       private SerialPort serialDevice = null;
+      private readonly Thread readThread = null;
 
-      private string atCommandExpectedResponse;
       private readonly AutoResetEvent atExpectedEvent;
-      private StringBuilder response;
       private Result result;
 
       public delegate void JoinCompletionHandler(bool result);
       public JoinCompletionHandler onJoinCompletion;
-
-      //public delegate void MessageConfirmationHandler(int rssi, int snr);
-      public delegate void MessageConfirmationHandler(bool success);
+      public delegate void MessageConfirmationHandler();
       public MessageConfirmationHandler OnMessageConfirmation;
       public delegate void ReceiveMessageHandler(int port, int rssi, int snr, string payload);
       public ReceiveMessageHandler OnReceiveMessage;
+      public delegate void JoinHandler(bool success);
+      public JoinHandler OnJoinCompletion;
+
 
       public Rak3172LoRaWanDevice()
       {
-         response = new StringBuilder();
+         this.readThread = new Thread(SerialPortProcessor);
+
          this.atExpectedEvent = new AutoResetEvent(false);
       }
 
@@ -155,17 +113,18 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 
          serialDevice.NewLine = "\r\n";
 
+         serialDevice.ReadTimeout = 5000;
+
          serialDevice.Open();
+         serialDevice.ReadExisting();
 
-         atCommandExpectedResponse = string.Empty;
-
-         serialDevice.DataReceived += SerialDevice_DataReceived;
+         readThread.Start();
 
          // Set the Working mode to LoRaWAN
 #if DIAGNOSTICS
          Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} lora:work_mode LoRaWAN");
 #endif
-         result = SendCommand("OK", "AT+NWM=1", CommandTimeoutDefault);
+         result = SendCommand("AT+NWM=1");
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
@@ -200,7 +159,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 #if DIAGNOSTICS
          Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+CLASS={loRaClass}");
 #endif
-         Result result = SendCommand("OK", command, CommandTimeoutDefault);
+         Result result = SendCommand(command);
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
@@ -212,7 +171,6 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
          return Result.Success;
       }
 
-      /*
       public Result Confirm(LoRaConfirmType loRaConfirmType)
       {
          string command;
@@ -220,16 +178,10 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
          switch (loRaConfirmType)
          {
             case LoRaConfirmType.Unconfirmed:
-               command = "at+set_config=lora:confirm:0";
+               command = "AT+CFM=0";
                break;
             case LoRaConfirmType.Confirmed:
-               command = "at+set_config=lora:confirm:1";
-               break;
-            case LoRaConfirmType.Multicast:
-               command = "at+set_config=lora:confirm:2";
-               break;
-            case LoRaConfirmType.Proprietary:
-               command = "at+set_config=lora:confirm:3";
+               command = "AT+CFM=1";
                break;
             default:
                throw new ArgumentException($"LoRa confirm type value {loRaConfirmType} invalid", nameof(loRaConfirmType));
@@ -239,7 +191,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 #if DIAGNOSTICS
          Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} lora:confirm:{loRaConfirmType}");
 #endif
-         Result result = SendCommand("OK", command, CommandTimeoutDefault);
+         Result result = SendCommand(command);
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
@@ -250,20 +202,18 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 
          return Result.Success;
       }
-      */
 
       public Result Band(string band)
       {
-         // TODO Tweak validation so it works with AS923-1 etc. length 3 or five maybe
-         //if (band.Length != RegionIDLength)
-         //{
-         //   throw new ArgumentException($"BandID {band} length {band.Length} invalid", nameof(band));
-         //}
+         if (band == null)
+         {
+            throw new  ArgumentNullException(nameof(band), $"Band is invalid");
+         }
 
 #if DIAGNOSTICS
          Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+BAND={band}");
 #endif
-         Result result = SendCommand("OK", $"AT+BAND={band}", CommandTimeoutDefault);
+         Result result = SendCommand($"AT+BAND={band}");
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
@@ -275,51 +225,13 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
          return Result.Success;
       }
 
-      /*
-      public Result Sleep()
-      {
-         // Put the RAK module to sleep
-#if DIAGNOSTICS
-         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} device:sleep:1");
-#endif
-         Result result = SendCommand("OK Sleep", $"at+set_config=device:sleep:1", CommandTimeoutDefault);
-         if (result != Result.Success)
-         {
-#if DIAGNOSTICS
-            Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} device:sleep failed {result}");
-#endif
-            return result;
-         }
-
-         return Result.Success;
-      }
-
-      public Result Wakeup()
-      {
-         // Wakeup the RAK Module
-#if DIAGNOSTICS
-         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} device:sleep:0");
-#endif
-         Result result = SendCommand("OK Wake Up", $"at+set_config=device:sleep:0", CommandTimeoutDefault);
-         if (result != Result.Success)
-         {
-#if DIAGNOSTICS
-            Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} device:sleep failed {result}");
-#endif
-            return result;
-         }
-
-         return Result.Success;
-      }
-      */
-
       public Result AdrOff()
       {
          // Adaptive Data Rate off
 #if DIAGNOSTICS
          Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+ADR=0");
 #endif
-         Result result = SendCommand("OK", $"AT+ADR=0", CommandTimeoutDefault);
+         Result result = SendCommand($"AT+ADR=0");
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
@@ -337,7 +249,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 #if DIAGNOSTICS
          Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+ADR=1");
 #endif
-         Result result = SendCommand("OK", $"AT+ADR=1", CommandTimeoutDefault);
+         Result result = SendCommand($"AT+ADR=1");
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
@@ -366,11 +278,11 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
             throw new ArgumentException($"appsKey invalid length must be {AppsKeyLength} characters", nameof(appsKey));
          }
 
-         // Set the JoinMode to ABP
+         // Set the network join mode to ABP
 #if DIAGNOSTICS
          Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+NJM=0");
 #endif
-         result = SendCommand("OK", $"AT+NJM=0", CommandTimeoutDefault);
+         result = SendCommand($"AT+NJM=0");
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
@@ -383,7 +295,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 #if DIAGNOSTICS
          Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+DEVADDR={devAddr}");
 #endif
-         result = SendCommand("OK", $"AT+DEVADDR={devAddr}", CommandTimeoutDefault);
+         result = SendCommand($"AT+DEVADDR={devAddr}");
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
@@ -396,7 +308,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 #if DIAGNOSTICS
          Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+NWKSKEY={nwksKey}");
 #endif
-         result = SendCommand("OK", $"AT+NWKSKEY={nwksKey}", CommandTimeoutDefault);
+         result = SendCommand($"AT+NWKSKEY={nwksKey}");
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
@@ -409,7 +321,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 #if DIAGNOSTICS
          Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+APPSKEY={appsKey}");
 #endif
-         result = SendCommand("OK", $"AT+APPSKEY={appsKey}", CommandTimeoutDefault);
+         result = SendCommand($"AT+APPSKEY={appsKey}");
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
@@ -434,11 +346,11 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
             throw new ArgumentException($"appKey invalid length must be {AppKeyLength} characters", nameof(appKey));
          }
 
-         // Set the JoinMode to OTAA
+         // Set the Network Join Mode to OTAA
 #if DIAGNOSTICS
          Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+NJM=1");
 #endif
-         result = SendCommand("OK", $"AT+NJM=1", CommandTimeoutDefault);
+         result = SendCommand($"AT+NJM=1");
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
@@ -451,7 +363,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 #if DIAGNOSTICS
          Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+APPEUI={appEui}");
 #endif
-         result = SendCommand("OK", $"AT+APPEUI={appEui}", CommandTimeoutDefault);
+         result = SendCommand($"AT+APPEUI={appEui}");
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
@@ -464,7 +376,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 #if DIAGNOSTICS
          Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+APPKEY={appKey}");
 #endif
-         result = SendCommand("OK", $"AT+APPKEY={appKey}", CommandTimeoutDefault);
+         result = SendCommand($"AT+APPKEY={appKey}");
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
@@ -485,7 +397,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
          Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+JOIN");
 #endif
          // TODO - Options 
-         result = SendCommand("OK", $"AT+JOIN=1:0:10:2", timeout);
+         result = SendCommand($"AT+JOIN=1:0:10:2");
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
@@ -497,27 +409,28 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
          return Result.Success;
       }
 
-      public Result Send(ushort port, string payload, TimeSpan timeout)
+      public Result Send(ushort port, string payload)
       {
-         Result result;
-
          if ((port < MessagePortMinimumValue) || (port > MessagePortMaximumValue))
          {
-            throw new ArgumentException($"port invalid must be greater than or equal to {MessagePortMinimumValue} and less than or equal to {MessagePortMaximumValue}", nameof(port));
+            throw new ArgumentException($"Port invalid must be greater than or equal to {MessagePortMinimumValue} and less than or equal to {MessagePortMaximumValue}", nameof(port));
          }
 
-         if ((payload == null) || (payload.Length < MessageBcdMinimumLength) || (payload.Length > MessageBcdMaximumLength))
+         if (payload == null)
          {
-            throw new ArgumentException($"payload invalid length must be greater than or equal to  {MessageBcdMinimumLength} and less than or equal to {MessageBcdMaximumLength} BCD characters long", nameof(payload));
+            throw new ArgumentNullException(nameof(payload));
          }
 
-         // TODO timeout validation
+         if ((payload.Length %2)==0)
+         {
+            throw new ArgumentException($"Payload invalid length must be a multiple of 2", nameof(payload));
+         }
 
          // Send message the network
 #if DIAGNOSTICS
-         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+SEND={port}:payload {payload} timeout {timeout.TotalSeconds} seconds");
+         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+SEND={port}:payload {payload}");
 #endif
-         result = SendCommand("OK", $"AT+SEND={port}:{payload}", timeout);
+         Result result = SendCommand($"AT+SEND={port}:{payload}");
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
@@ -529,27 +442,25 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
          return Result.Success;
       }
 
-      public Result Send(ushort port, byte[] payloadBytes, TimeSpan timeout)
+      public Result Send(ushort port, byte[] payload)
       {
-         Result result;
-
          if ((port < MessagePortMinimumValue) || (port > MessagePortMaximumValue))
          {
-            throw new ArgumentException($"port invalid must be greater than or equal to {MessagePortMinimumValue} and less than or equal to {MessagePortMaximumValue}", nameof(port));
+            throw new ArgumentException($"Port invalid must be greater than or equal to {MessagePortMinimumValue} and less than or equal to {MessagePortMaximumValue}", nameof(port));
          }
 
-         if ((payloadBytes == null) || (payloadBytes.Length < MessageBytesMinimumLength) || (payloadBytes.Length > MessageBytesMaximumLength))
+         if (payload == null)
          {
-            throw new ArgumentException($"payload invalid length must be greater than or equal to {MessageBytesMinimumLength} and less than or equal to {MessageBytesMaximumLength} bytes long", nameof(payloadBytes));
+            throw new ArgumentNullException(nameof(payload));
          }
 
-         string payloadBcd = BytesToBcd(payloadBytes);
+         string payloadBcd = BytesToBcd(payload);
 
          // Send message the network
 #if DIAGNOSTICS
-         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+SEND=:{port} payload {payloadBcd} timeout {timeout.TotalSeconds} seconds");
+         Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+SEND=:{port} payload {payloadBcd}");
 #endif
-         result = SendCommand("OK", $"AT+SEND={port}:{payloadBcd}", timeout);
+         Result result = SendCommand($"AT+SEND={port}:{payloadBcd}");
          if (result != Result.Success)
          {
 #if DIAGNOSTICS
@@ -561,247 +472,139 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
          return Result.Success;
       }
 
-      private Result SendCommand(string expectedResponse, string command, TimeSpan timeout)
+      private Result SendCommand(string command)
       {
-         if ((expectedResponse == null) || (expectedResponse == string.Empty))
-         {
-            throw new ArgumentException($"expectedResponse invalid length cannot be empty", nameof(expectedResponse));
+         if (command == null)
+			{
+            throw new ArgumentNullException(nameof(command));
          }
-         if ((command == null) || (command == string.Empty))
+
+         if (command == string.Empty)
          {
             throw new ArgumentException($"command invalid length cannot be empty", nameof(command));
          }
 
-         this.atCommandExpectedResponse = expectedResponse;
-
+         serialDevice.ReadTimeout = (int)CommandTimeoutDefault.TotalMilliseconds;
          serialDevice.WriteLine(command);
 
          this.atExpectedEvent.Reset();
 
-         if (!this.atExpectedEvent.WaitOne((int)timeout.TotalMilliseconds, false))
-            return Result.ATResponseTimeout;
-
-         this.atCommandExpectedResponse = string.Empty;
+         if (!this.atExpectedEvent.WaitOne((int)CommandTimeoutDefault.TotalMilliseconds, false))
+            return Result.Timeout;
 
          return result;
       }
 
-      private static Result ModemErrorParser(string errorText)
+      public void SerialPortProcessor()
       {
-         Result result;
-         ushort errorNumber;
-         //Debug.Assert((errorText == null) || (errorText == string.Empty));
+         string line;
 
-         try
+         while (true)
          {
-            errorNumber = ushort.Parse(errorText);
-         }
-         catch (Exception)
-         {
-            return Result.ResponseInvalid;
-         }
+            this.serialDevice.ReadTimeout = -1;
 
-         switch (errorNumber)
-         {
-            case 1:
-               result = Result.ATCommandUnsuported;
-               break;
-            case 2:
-               result = Result.ATCommandInvalidParameter;
-               break;
-            case 3: //There is an error when reading or writing flash.
-            case 4: //There is an error when reading or writing through IIC.
-               result = Result.ErrorReadingOrWritingFlash;
-               break;
-            case 5: //There is an error when sending through UART
-               result = Result.ATCommandInvalidParameter;
-               break;
-            case 41: //The BLE works in an invalid state, so that it can’t be operated.
-               result = Result.ResponseInvalid;
-               break;
-            case 80:
-               result = Result.LoRaBusy;
-               break;
-            case 81:
-               result = Result.LoRaServiceIsUnknown;
-               break;
-            case 82:
-               result = Result.LoRaParameterInvalid;
-               break;
-            case 83:
-               result = Result.LoRaFrequencyInvalid;
-               break;
-            case 84:
-               result = Result.LoRaDataRateInvalid;
-               break;
-            case 85:
-               result = Result.LoRaFrequencyAndDataRateInvalid;
-               break;
-            case 86:
-               result = Result.LoRaDeviceNotJoinedNetwork;
-               break;
-            case 87:
-               result = Result.LoRaPacketToLong;
-               break;
-            case 88:
-               result = Result.LoRaServiceIsClosedByServer;
-               break;
-            case 89:
-               result = Result.LoRaRegionUnsupported;
-               break;
-            case 90:
-               result = Result.LoRaDutyCycleRestricted;
-               break;
-            case 91:
-               result = Result.LoRaNoValidChannelFound;
-               break;
-            case 92:
-               result = Result.LoRaNoFreeChannelFound;
-               break;
-            case 93:
-               result = Result.StatusIsError;
-               break;
-            case 94:
-               result = Result.LoRaTransmitTimeout;
-               break;
-            case 95:
-               result = Result.LoRaRX1Timeout;
-               break;
-            case 96:
-               result = Result.LoRaRX2Timeout;
-               break;
-            case 97:
-               result = Result.LoRaRX1ReceiveError;
-               break;
-            case 98:
-               result = Result.LoRaRX2ReceiveError;
-               break;
-            case 99:
-               result = Result.LoRaJoinFailed;
-               break;
-            case 100:
-               result = Result.LoRaDownlinkRepeated;
-               break;
-            case 101:
-               result = Result.LoRaPayloadSizeNotValidForDataRate;
-               break;
-            case 102:
-               result = Result.LoRaTooManyDownlinkFramesLost;
-               break;
-            case 103:
-               result = Result.LoRaAddressFail;
-               break;
-            case 104:
-               result = Result.LoRaMicVerifyError;
-               break;
-            default:
-               result = Result.ResponseInvalid;
-               break;
-         }
+            Debug.WriteLine("ReadLine before");
+            line = serialDevice.ReadLine();
+            Debug.WriteLine($"ReadLine after:{line}");
 
-         return result;
-      }
-
-      private void SerialDevice_DataReceived(object sender, SerialDataReceivedEventArgs e)
-      {
-         SerialPort serialDevice = (SerialPort)sender;
-
-         response.Append(serialDevice.ReadExisting());
-
-         int eolPosition;
-         do
-         {
-            // extract a line
-            eolPosition = response.ToString().IndexOf(EndOfLineMarker);
-
-            if (eolPosition != -1)
+            // check for +EVT:JOINED
+            if (line.StartsWith("+EVT:JOINED"))
             {
-               string line = response.ToString(0, eolPosition);
-               response = response.Remove(0, eolPosition + EndOfLineMarker.Length);
-#if DIAGNOSTICS
-               Debug.WriteLine($" Line :{line} ResponseExpected:{atCommandExpectedResponse} Response:{response}");
-#endif
-               int joinSucessIndex = line.IndexOf(JoinMarkerSuccess);
-               if (joinSucessIndex != -1)
-               {
-                  if (this.onJoinCompletion != null)
-                  {
-                     onJoinCompletion(true);
-                  }
-               }
+					OnJoinCompletion?.Invoke(true);
 
-               int joinFailureIndex = line.IndexOf(JoinMarkerFailure);
-               if (joinFailureIndex != -1)
-               {
-                  if (this.onJoinCompletion != null)
-                  {
-                     OnMessageConfirmation(false);
-                  }
-               }
+               continue;
+            }
 
-               int confirmedFailureIndex = line.IndexOf(ConfirmedMarkerFailure);
-               if (joinFailureIndex != -1)
-               {
-                  if (this.onJoinCompletion != null)
-                  {
-                     OnMessageConfirmation(false);
-                  }
-               }
+            if (line.StartsWith("+EVT:JOIN FAILED"))
+            {
+					OnJoinCompletion?.Invoke(false);
 
-               int errorIndex = line.IndexOf(ErrorMarker);
-               if (errorIndex != -1)
-               {
-                  string errorNumber = line.Substring(errorIndex + ErrorMarker.Length);
+               continue;
+            }
 
-                  result = ModemErrorParser(errorNumber.Trim());
-                  atExpectedEvent.Set();
-               }
+            if (line.StartsWith("+EVT:SEND CONFIRMED OK"))
+            {
+               OnMessageConfirmation?.Invoke();
 
-               if (atCommandExpectedResponse != string.Empty)
+               continue;
+            }
+
+            // Check for A/B/C downlink message
+            if (line.StartsWith("+EVT:RX_1") || line.StartsWith("+EVT:RX_2") || line.StartsWith("+EVT:RX_3") || line.StartsWith("+EVT:RX_C"))
+            {
+               string[] fields1 = line.Split(' ', ',');
+
+               int rssi = int.Parse(fields1[3]);
+               int snr = int.Parse(fields1[6]);
+ 
+               line = serialDevice.ReadLine();
+               Console.WriteLine($"{DateTime.UtcNow:HH:mm:ss} UNICAST :{line}");
+
+               line = serialDevice.ReadLine();
+               Console.WriteLine($"{DateTime.UtcNow:HH:mm:ss} Payload:{line}");
+
+               string[] fields2 = line.Split(':');
+
+               int port = int.Parse(fields2[1]);
+               string payload = fields2[2];
+
+					OnReceiveMessage?.Invoke(port, rssi, snr, payload);
+
+               continue;
+            }
+
+            try
+            {
+               this.serialDevice.ReadTimeout = 3000;
+
+               Debug.WriteLine("ReadLine Result");
+               line = serialDevice.ReadLine();
+               Debug.WriteLine($"ReadLine Result after:{line}");
+
+               switch (line)
                {
-                  int successIndex = line.IndexOf(atCommandExpectedResponse);
-                  if (successIndex != -1)
-                  {
+                  case "OK":
                      result = Result.Success;
-                     atExpectedEvent.Set();
-                  }
-               }
-
-               int receivedMessageIndex = line.IndexOf(ReplyMarker);
-               if (receivedMessageIndex != -1)
-               {
-                  string[] fields = line.Split("=,:".ToCharArray());
-
-                  int port = int.Parse(fields[1]);
-                  int rssi = int.Parse(fields[2]);
-                  int snr = int.Parse(fields[3]);
-                  int length = int.Parse(fields[4]);
-
-                  if (this.OnMessageConfirmation != null)
-                  {
-                     //OnMessageConfirmation(rssi, snr);
-                     OnMessageConfirmation(true);
-                  }
-                  if (length > 0)
-                  {
-                     string payload = fields[5];
-
-                     if (this.OnReceiveMessage != null)
-                     {
-                        OnReceiveMessage(port, rssi, snr, payload);
-                     }
-                  }
+                     break;
+                  case "AT_ERROR":
+                     result = Result.Error;
+                     break;
+                  case "AT_PARAM_ERROR":
+                     result = Result.ParameterError;
+                     break;
+                  case "AT_BUSY_ERROR":
+                     result = Result.BusyError;
+                     break;
+                  case "AT_TEST_PARAM_OVERFLOW":
+                     result = Result.ParameterOverflow;
+                     break;
+                  case "AT_NO_NETWORK_JOINED":
+                     result = Result.NotJoined;
+                     break;
+                  case "AT_RX_ERROR":
+                     result = Result.ReceiveError;
+                     break;
+                  case "AT_DUTYCYLE_RESTRICTED":
+                     result = Result.DutyCycleRestricted;
+                     break;
+                  default:
+                     result = Result.Undefined;
+                     break;
                }
             }
+            catch (TimeoutException) 
+            {
+               result = Result.Timeout;
+            }
+
+            atExpectedEvent.Set();
          }
-         while (eolPosition != -1);
       }
 
       // Utility functions for clients for processing messages payloads to be send, ands messages payloads received.
       public static string BytesToBcd(byte[] payloadBytes)
       {
          Debug.Assert(payloadBytes != null);
-         Debug.Assert(payloadBytes.Length > 0);
 
          StringBuilder payloadBcd = new StringBuilder(BitConverter.ToString(payloadBytes));
 
@@ -833,6 +636,11 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 
       public void Dispose()
       {
+         if (readThread != null)
+         {
+            readThread.Join();
+         }
+
          if (serialDevice != null)
          {
             serialDevice.Dispose();
