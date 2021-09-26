@@ -23,11 +23,17 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 
 	public class Program
 	{
+		private static SerialPort serialPort;
+#if SERIAL_THREADED_READ
+		private static Boolean _continue = true;
+#endif
 		private const string SerialPortId = "/dev/ttyS0";
 
 		public static void Main()
 		{
-			SerialPort serialPort;
+#if SERIAL_THREADED_READ
+			Thread readThread = new Thread(SerialPortProcessor);
+#endif
 
 			Debug.WriteLine("devMobile.IoT.LoRaWAN.NetCore.RAK3172 BreakoutSerial starting");
 
@@ -49,6 +55,10 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 				serialPort.NewLine = "\r\n";
 
 				serialPort.Open();
+
+#if SERIAL_THREADED_READ
+				readThread.Start();
+#endif
 
 #if SERIAL_ASYNC_READ
 				serialPort.DataReceived += SerialDevice_DataReceived;
@@ -100,6 +110,41 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 				default:
 					Debug.Assert(false, $"e.EventType {e.EventType} unknown");
 					break;
+			}
+		}
+#endif
+
+#if SERIAL_THREADED_READ
+		public static void SerialPortProcessor()
+		{
+			while (_continue)
+			{
+				try
+				{
+					string message;
+
+					message = serialPort.ReadLine();
+					Console.WriteLine($"{DateTime.UtcNow:HH:mm:ss} 1:{message}");
+
+					message = serialPort.ReadLine();
+					Console.WriteLine($"{DateTime.UtcNow:HH:mm:ss} 2:{message}");
+
+					message = serialPort.ReadLine();
+					Console.WriteLine($"{DateTime.UtcNow:HH:mm:ss} 3:{message}");
+
+					message = serialPort.ReadLine();
+					Console.WriteLine($"{DateTime.UtcNow:HH:mm:ss} 4:{message}");
+
+					message = serialPort.ReadLine();
+					Console.WriteLine($"{DateTime.UtcNow:HH:mm:ss} 5:{message}");
+
+					message = serialPort.ReadLine();
+					Console.WriteLine($"{DateTime.UtcNow:HH:mm:ss} 6:{message}");
+				}
+				catch (TimeoutException) 
+				{ 
+					Console.WriteLine($"{DateTime.UtcNow:HH:mm:ss} timeout");
+				}
 			}
 		}
 #endif
