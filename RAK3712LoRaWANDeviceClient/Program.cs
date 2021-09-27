@@ -19,7 +19,6 @@
 //
 // Optional definitions
 //    CONFIRMED For confirmed messages
-//    RESET for retun device to factory settings
 //
 //---------------------------------------------------------------------------------
 namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
@@ -65,7 +64,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 						return;
 					}
 
-					SendTimer = new Timer(TimerCallback, device,Timeout.Infinite, Timeout.Infinite);
+					SendTimer = new Timer(SendMessageTimerCallback, device,Timeout.Infinite, Timeout.Infinite);
 
 					device.OnJoinCompletion += OnJoinCompletionHandler;
 					device.OnReceiveMessage += OnReceiveMessageHandler;
@@ -164,7 +163,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 			}
 		}
 
-		static void TimerCallback(object state)
+		static void SendMessageTimerCallback(object state)
 		{
 			Rak3172LoRaWanDevice device = (Rak3172LoRaWanDevice)state;
 
