@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31702.278
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "00.BreakoutSerial", "ShieldSerial\00.BreakoutSerial.csproj", "{7E8D5FF8-3064-4585-8F6E-E7BF8175E000}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "00.BreakoutSerial", "BreakoutSerial\00.BreakoutSerial.csproj", "{7E8D5FF8-3064-4585-8F6E-E7BF8175E000}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "01.NetworkJoinOTAA", "NetworkJoinOTAA\01.NetworkJoinOTAA.csproj", "{17DBFF66-CBF6-42A8-9001-13B762E5748B}"
 EndProject
