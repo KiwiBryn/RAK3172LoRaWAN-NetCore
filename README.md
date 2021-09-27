@@ -7,12 +7,15 @@ This repo has the source code for the series of blog posts written as I work on 
 01. [Basic connectivity](http://blog.devmobile.co.nz/2021/09/19/net-core-rak3172-lorawan-library-part1/)
 02. [Nasty OTAA connect](http://blog.devmobile.co.nz/2021/09/20/net-core-rak3172-lorawan-library-part2/)
 03. [Nasty ABP connect](https://blog.devmobile.co.nz/2021/09/20/net-core-rak3172-lorawan-library-part3/)
-
-Next step is figuring out a way of unpacking the responses without building a complex state machine
+04. [Starting again with Threads](http://blog.devmobile.co.nz/2021/09/27/net-core-rak3172-lorawan-library-part4/)
 
 I used a [Grove Base HAT for Raspberry Pi](https://www.seeedstudio.com/Grove-Base-Hat-for-Raspberry-Pi.html) and [RAK3172 Breakout](https://store.rakwireless.com/products/wisduo-breakout-board-rak3272s) for development
 
 ![Grove Base Hat for RaspberryPI connected RAK3127](RRPI3Rak3172.jpg)
+
+To use the breakout board with a [Grove Base Hat](https://www.seeedstudio.com/Grove-Base-Hat-for-Raspberry-Pi.html) connect the GND, 3V3, UART2_RX and UART2_TX pins.
+
+![Close up of Grove cable connection to RAK3172 breakout board](BreakoutConnection.jpg)
 
 [The Things Network](https://www.thethingsnetwork.org/) uplink and downlink messaging 
 ![TTN Uplink and downlink messaging](TTIConnectAndSend.PNG)
