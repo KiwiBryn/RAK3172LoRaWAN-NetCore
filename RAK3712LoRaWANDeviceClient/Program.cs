@@ -34,11 +34,13 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 		private const string SerialPortId = "/dev/ttyS0";
 		private const LoRaClass Class = LoRaClass.A;
 		private const string Band = "8-1";
-		private static readonly TimeSpan JoinTimeOut = new TimeSpan(0, 0, 30);
 		private const byte MessagePort = 10;
+		private static readonly TimeSpan JoinTimeOut = new TimeSpan(0, 0, 30);
+		private static readonly TimeSpan MessageSentTimerDue = new TimeSpan(0, 0, 15);
+		private static readonly TimeSpan MessageSentTimerPeriod = new TimeSpan(0, 5, 0);
 		private static Timer SendTimer ;
 #if PAYLOAD_BCD
-		private const string PayloadBcd = ""; //"48656c6c6f204c6f526157414e"; // Hello LoRaWAN in BCD
+		private const string PayloadBcd = "48656c6c6f204c6f526157414e"; // Hello LoRaWAN in BCD
 #endif
 #if PAYLOAD_BYTES
 		private static readonly byte[] PayloadBytes = { 0x65 , 0x6c, 0x6c, 0x6f, 0x20, 0x4c, 0x6f, 0x52, 0x61, 0x57, 0x41, 0x4e}; // Hello LoRaWAN in bytes
@@ -141,7 +143,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 						Debug.WriteLine($"Join failed {result}");
 						return;
 					}
-					Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Join finish");
+					Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Join started");
 
 					Thread.Sleep(Timeout.Infinite);
 				}
@@ -158,7 +160,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 
 			if (result)
 			{ 
-				SendTimer.Change(30000, 30000);
+				SendTimer.Change(MessageSentTimerDue, MessageSentTimerPeriod);
 			}
 		}
 
