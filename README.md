@@ -13,6 +13,10 @@ I used a [Grove Base HAT for Raspberry Pi](https://www.seeedstudio.com/Grove-Bas
 
 ![Grove Base Hat for RaspberryPI connected RAK3127](RRPI3Rak3172.jpg)
 
+To use the breakout board with a [Grove Base Hat](https://www.seeedstudio.com/Grove-Base-Hat-for-Raspberry-Pi.html) connect the GND, 3V3, UART2_RX and UART2_TX pins.
+
+![Close up of Grove cable connection to RAK3172 breakout board](BreakoutConnection.jpg)
+
 [The Things Network](https://www.thethingsnetwork.org/) uplink and downlink messaging 
 ![TTN Uplink and downlink messaging](TTIConnectAndSend.PNG)
 
