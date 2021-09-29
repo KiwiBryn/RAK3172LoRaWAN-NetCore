@@ -68,6 +68,10 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 				{
 					serialPort.WriteLine("AT+VER=?");
 
+#if READLINE_BUFFER
+					serialPort.WriteLine("AT+VER=?");
+#endif
+
 #if SERIAL_SYNC_READ
 					// Read the response
 					string response = serialPort.ReadLine();
@@ -80,8 +84,15 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 					// Read the result
 					response = serialPort.ReadLine();
 					Debug.WriteLine($"RX:{response.Trim()} bytes:{response.Length}");
-#endif
 
+	#if READLINE_BUFFER
+					message = serialPort.ReadLine();
+					Console.WriteLine($"{DateTime.UtcNow:HH:mm:ss} 3:{message}");
+
+					message = serialPort.ReadExisting();
+					Console.WriteLine($"{DateTime.UtcNow:HH:mm:ss} 4:{message}");
+	#endif
+#endif
 					Thread.Sleep(20000);
 				}
 			}
@@ -117,33 +128,36 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 #if SERIAL_THREADED_READ
 		public static void SerialPortProcessor()
 		{
+			string message;
+
 			while (_continue)
 			{
 				try
 				{
-					string message;
-
 					message = serialPort.ReadLine();
 					Console.WriteLine($"{DateTime.UtcNow:HH:mm:ss} 1:{message}");
 
 					message = serialPort.ReadLine();
 					Console.WriteLine($"{DateTime.UtcNow:HH:mm:ss} 2:{message}");
 
+#if READLINE_BUFFER
 					message = serialPort.ReadLine();
 					Console.WriteLine($"{DateTime.UtcNow:HH:mm:ss} 3:{message}");
 
 					message = serialPort.ReadLine();
 					Console.WriteLine($"{DateTime.UtcNow:HH:mm:ss} 4:{message}");
-
+#endif
 					message = serialPort.ReadLine();
 					Console.WriteLine($"{DateTime.UtcNow:HH:mm:ss} 5:{message}");
 
 					message = serialPort.ReadLine();
 					Console.WriteLine($"{DateTime.UtcNow:HH:mm:ss} 6:{message}");
+
 				}
 				catch (TimeoutException) 
-				{ 
-					Console.WriteLine($"{DateTime.UtcNow:HH:mm:ss} timeout");
+				{
+					message = serialPort.ReadExisting();
+					Console.WriteLine($"{DateTime.UtcNow:HH:mm:ss} Timeout:{message}");
 				}
 			}
 		}
