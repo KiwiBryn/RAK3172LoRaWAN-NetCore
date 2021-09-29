@@ -34,10 +34,11 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 		private const LoRaClass Class = LoRaClass.A;
 		private const string Band = "8-1";
 		private const byte MessagePort = 10;
-		private static readonly TimeSpan JoinTimeOut = new TimeSpan(0, 0, 30);
-		private static readonly TimeSpan MessageSentTimerDue = new TimeSpan(0, 0, 15);
-		private static readonly TimeSpan MessageSentTimerPeriod = new TimeSpan(0, 5, 0);
-		private static Timer SendTimer ;
+		private static readonly TimeSpan MessageSendTimerDue = new TimeSpan(0, 0, 15);
+		private static readonly TimeSpan MessageSendTimerPeriod = new TimeSpan(0, 5, 0);
+		private static Timer MessageSendTimer ;
+		private const int JoinRetryAttempts = 2;
+		private const int JoinRetryIntervalSeconds = 10;
 #if PAYLOAD_BCD
 		private const string PayloadBcd = "48656c6c6f204c6f526157414e"; // Hello LoRaWAN in BCD
 #endif
@@ -64,7 +65,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 						return;
 					}
 
-					SendTimer = new Timer(SendMessageTimerCallback, device,Timeout.Infinite, Timeout.Infinite);
+					MessageSendTimer = new Timer(SendMessageTimerCallback, device,Timeout.Infinite, Timeout.Infinite);
 
 					device.OnJoinCompletion += OnJoinCompletionHandler;
 					device.OnReceiveMessage += OnReceiveMessageHandler;
@@ -136,7 +137,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 #endif
 
 					Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Join start");
-					result = device.Join(JoinTimeOut);
+					result = device.Join(JoinRetryAttempts, JoinRetryIntervalSeconds);
 					if (result != Result.Success)
 					{
 						Debug.WriteLine($"Join failed {result}");
@@ -155,11 +156,11 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 
 		static void OnJoinCompletionHandler(bool result)
 		{
-			Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Join result:{result}");
+			Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Join finished:{result}");
 
 			if (result)
 			{ 
-				SendTimer.Change(MessageSentTimerDue, MessageSentTimerPeriod);
+				MessageSendTimer.Change(MessageSendTimerDue, MessageSendTimerPeriod);
 			}
 		}
 
@@ -172,7 +173,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 			Result result = device.Send(MessagePort, PayloadBcd );
 #endif
 #if PAYLOAD_BYTES
-			Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} port:{MessagePort}");
+			Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} port:{MessagePort} payload Bytes:{Rak3172LoRaWanDevice.BytesToBcd(PayloadBytes)}");
          Result result = device.Send(MessagePort, PayloadBytes);
 #endif
 			if (result != Result.Success)
