@@ -52,7 +52,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 
 			Debug.WriteLine("devMobile.IoT.LoRaWAN.NetCore.RAK3172 RAK3712LoRaWANDeviceClient starting");
 
-			Debug.WriteLine(String.Join(",", SerialPort.GetPortNames()));
+			Debug.WriteLine($"Serial ports:{String.Join(",", SerialPort.GetPortNames())}");
 
 			try
 			{
