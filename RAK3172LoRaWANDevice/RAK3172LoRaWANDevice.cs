@@ -22,6 +22,9 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 	using System.Text;
 	using System.Threading;
 
+	/// <summary>
+	/// 
+	/// </summary>
 	public enum LoRaClass
 	{
 		Undefined = 0,
@@ -30,6 +33,9 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 		C
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
 	public enum LoRaConfirmType
 	{
 		Undefined = 0,
@@ -37,6 +43,9 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 		Confirmed,
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
 	public enum Result
 	{
 		Undefined = 0,
@@ -51,10 +60,14 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 		DutyCycleRestricted
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
 	public sealed class Rak3172LoRaWanDevice : IDisposable
 	{
 		public const ushort BaudRateMinimum = 600;
 		public const ushort BaudRateMaximum = 57600;
+		public const ushort DevEuiLength = 16;
 		public const ushort AppEuiLength = 16;
 		public const ushort AppKeyLength = 32;
 		public const ushort DevAddrLength = 8;
@@ -64,9 +77,8 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 		public const ushort MessagePortMaximumValue = 223;
 		public const ushort JoinRetryIntervalMinimum = 7;
 
-		private readonly int CommandTimeoutDefaultmSec = 3000;
-
 		private SerialPort serialDevice = null;
+		private const int CommandTimeoutDefaultmSec = 1500;
 		private readonly Thread processModuleResponsesThread = null;
 		private Boolean processModuleResponses = true;
 		private readonly AutoResetEvent atExpectedEvent;
@@ -86,6 +98,19 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 			this.atExpectedEvent = new AutoResetEvent(false);
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the devMobile.IoT.LoRaWAN.NetCore.RAK3172.Rak3172LoRaWanDevice class using the
+		//     specified port name, baud rate, parity bit, data bits, and stop bit.
+		/// </summary>
+		/// <param name="serialPortId">The port to use (for example, COM1).</param>
+		/// <param name="baudRate">The baud rate, 600 to 57K6.</param>
+		/// <param name="serialParity">One of the System.IO.Ports.SerialPort.Parity values, defaults to None.</param>
+		/// <param name="dataBits">The data bits value, defaults to 8.</param>
+		/// <param name="stopBits">One of the System.IO.Ports.SerialPort.StopBits values, defaults to One.</param>
+		/// <exception cref="System.IO.IOException">The specified port could not be found or opened.</exception>
+		/// <exception cref="System.IO.ArgumentNullException">The specified serialPortId serialPortId is null.</exception>
+		/// <exception cref="System.IO.ArgumentException">The specified baud rate is invalid.</exception>
+		/// <returns>One of the devMobile.IoT.LoRaWAN.NetCore.RAK3172.Result values </returns>
 		public Result Initialise(string serialPortId, int baudRate, Parity serialParity = Parity.None, ushort dataBits = 8, StopBits stopBits = StopBits.One)
 		{
 			if (serialPortId == null)
@@ -103,7 +128,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 
 			serialDevice = new SerialPort(serialPortId);
 
-			// set parameters
+			// set SerialPort parameters
 			serialDevice.BaudRate = baudRate;
 			serialDevice.Parity = serialParity;
 			serialDevice.DataBits = dataBits;
@@ -134,6 +159,12 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 
 			return Result.Success;
 		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="loRaClass"></param>
+		/// <returns></returns>
 
 		public Result Class(LoRaClass loRaClass)
 		{
@@ -170,6 +201,11 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 			return Result.Success;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="loRaConfirmType"></param>
+		/// <returns></returns>
 		public Result Confirm(LoRaConfirmType loRaConfirmType)
 		{
 			string command;
@@ -202,6 +238,11 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 			return Result.Success;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="band"></param>
+		/// <returns></returns>
 		public Result Band(string band)
 		{
 			if (band == null)
@@ -224,6 +265,10 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 			return Result.Success;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		public Result AdrOff()
 		{
 			// Adaptive Data Rate off
@@ -242,6 +287,10 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 			return Result.Success;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		public Result AdrOn()
 		{
 			// Adaptive Data Rate on
@@ -260,6 +309,13 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 			return Result.Success;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="devAddr"></param>
+		/// <param name="nwksKey"></param>
+		/// <param name="appsKey"></param>
+		/// <returns></returns>
 		public Result AbpInitialise(string devAddr, string nwksKey, string appsKey)
 		{
 			Result result;
@@ -349,6 +405,12 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 			return Result.Success;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="appEui"></param>
+		/// <param name="appKey"></param>
+		/// <returns></returns>
 		public Result OtaaInitialise(string appEui, string appKey)
 		{
 			Result result;
@@ -415,6 +477,12 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 			return Result.Success;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="JoinAttempts"></param>
+		/// <param name="retryInterval"></param>
+		/// <returns></returns>
 		public Result Join(ushort JoinAttempts = 0, ushort retryInterval = 8)
 		{
 			if (retryInterval < JoinRetryIntervalMinimum)
@@ -437,6 +505,12 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 			return Result.Success;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="port"></param>
+		/// <param name="payload"></param>
+		/// <returns></returns>
 		public Result Send(ushort port, string payload)
 		{
 			if ((port < MessagePortMinimumValue) || (port > MessagePortMaximumValue))
@@ -470,6 +544,12 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 			return Result.Success;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="port"></param>
+		/// <param name="payload"></param>
+		/// <returns></returns>
 		public Result Send(ushort port, byte[] payload)
 		{
 			if ((port < MessagePortMinimumValue) || (port > MessagePortMaximumValue))
@@ -528,70 +608,66 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 
 			while (processModuleResponses)
 			{
-				this.serialDevice.ReadTimeout = -1;
-
-#if DIAGNOSTICS
-            Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} ReadLine before");
-#endif
-				line = serialDevice.ReadLine();
-#if DIAGNOSTICS
-            Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} ReadLine after:{line}");
-#endif
-
-				// See if device successfully joined network
-				if (line.StartsWith("+EVT:JOINED"))
-				{
-					OnJoinCompletion?.Invoke(true);
-
-					continue;
-				}
-
-				// See if device failed ot join network
-				if (line.StartsWith("+EVT:JOIN FAILED"))
-				{
-					OnJoinCompletion?.Invoke(false);
-
-					continue;
-				}
-
-				// Applicable only if confirmed messages enabled 
-				if (line.StartsWith("+EVT:SEND CONFIRMED OK"))
-				{
-					OnMessageConfirmation?.Invoke();
-
-					continue;
-				}
-
-				// Check for A/B/C downlink message
-				if (line.StartsWith("+EVT:RX_1") || line.StartsWith("+EVT:RX_2") || line.StartsWith("+EVT:RX_3") || line.StartsWith("+EVT:RX_C"))
-				{
-					string[] fields1 = line.Split(' ', ',');
-
-					int rssi = int.Parse(fields1[3]);
-					int snr = int.Parse(fields1[6]);
-
-					line = serialDevice.ReadLine();
-
-#if DIAGNOSTICS
-					Debug.WriteLine($"{DateTime.UtcNow:HH:mm:ss} UNICAST :{line}");
-#endif
-					line = serialDevice.ReadLine();
-#if DIAGNOSTICS
-					Debug.WriteLine($"{DateTime.UtcNow:HH:mm:ss} Payload:{line}");
-#endif
-					string[] fields2 = line.Split(':');
-
-					int port = int.Parse(fields2[1]);
-					string payload = fields2[2];
-
-					OnReceiveMessage?.Invoke(port, rssi, snr, payload);
-
-					continue;
-				}
-
 				try
-				{
-					this.serialDevice.ReadTimeout = 3000;
+				{ 
+#if DIAGNOSTICS
+					Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} ReadLine before");
+#endif
+					line = serialDevice.ReadLine();
+#if DIAGNOSTICS
+					Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} ReadLine after:{line}");
+#endif
+
+					// See if device successfully joined network
+					if (line.StartsWith("+EVT:JOINED"))
+					{
+						OnJoinCompletion?.Invoke(true);
+
+						continue;
+					}
+
+					// See if device failed ot join network
+					if (line.StartsWith("+EVT:JOIN FAILED"))
+					{
+						OnJoinCompletion?.Invoke(false);
+
+						continue;
+					}
+
+					// Applicable only if confirmed messages enabled 
+					if (line.StartsWith("+EVT:SEND CONFIRMED OK"))
+					{
+						OnMessageConfirmation?.Invoke();
+
+						continue;
+					}
+
+					// Check for A/B/C downlink message
+					if (line.StartsWith("+EVT:RX_1") || line.StartsWith("+EVT:RX_2") || line.StartsWith("+EVT:RX_3") || line.StartsWith("+EVT:RX_C"))
+					{
+						string[] fields1 = line.Split(' ', ',');
+
+						int rssi = int.Parse(fields1[3]);
+						int snr = int.Parse(fields1[6]);
+
+						line = serialDevice.ReadLine();
+
+	#if DIAGNOSTICS
+						Debug.WriteLine($"{DateTime.UtcNow:HH:mm:ss} UNICAST :{line}");
+	#endif
+						line = serialDevice.ReadLine();
+	#if DIAGNOSTICS
+						Debug.WriteLine($"{DateTime.UtcNow:HH:mm:ss} Payload:{line}");
+	#endif
+						string[] fields2 = line.Split(':');
+
+						int port = int.Parse(fields2[1]);
+						string payload = fields2[2];
+
+						OnReceiveMessage?.Invoke(port, rssi, snr, payload);
+
+						continue;
+					}
 
 #if DIAGNOSTICS
                Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} ReadLine Result");
@@ -630,17 +706,22 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 							result = Result.Undefined;
 							break;
 					}
+
+					atExpectedEvent.Set();
 				}
 				catch (TimeoutException)
 				{
-					result = Result.Timeout;
+					// Intentionally ignored, not certain this is a good idea
 				}
-
-				atExpectedEvent.Set();
 			}
 		}
 
 		// Utility functions for clients for processing messages payloads to be send, ands messages payloads received.
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="payloadBytes"></param>
+		/// <returns></returns>
 		public static string BytesToBcd(byte[] payloadBytes)
 		{
 			Debug.Assert(payloadBytes != null);
@@ -652,6 +733,11 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 			return payloadBcd.ToString();
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="payloadBcd"></param>
+		/// <returns></returns>
 		public static byte[] BcdToByes(string payloadBcd)
 		{
 			Debug.Assert(payloadBcd != null);
