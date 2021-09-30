@@ -154,7 +154,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 			}
 		}
 
-		static void OnJoinCompletionHandler(bool result)
+		private static void OnJoinCompletionHandler(bool result)
 		{
 			Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Join finished:{result}");
 
@@ -164,7 +164,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 			}
 		}
 
-		static void SendMessageTimerCallback(object state)
+		private static void SendMessageTimerCallback(object state)
 		{
 			Rak3172LoRaWanDevice device = (Rak3172LoRaWanDevice)state;
 
@@ -183,15 +183,15 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 		}
 
 #if CONFIRMED
-		static void OnMessageConfirmationHandler()
+		private static void OnMessageConfirmationHandler()
       {
 			Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Send successful");
 		}
 #endif
 
-		static void OnReceiveMessageHandler(int port, int rssi, int snr, string payloadBcd)
+		private static void OnReceiveMessageHandler(int port, int rssi, int snr, string payloadBcd)
 		{
-			byte[] payloadBytes = Rak3172LoRaWanDevice.BcdToByes(payloadBcd);
+			byte[] payloadBytes = Rak3172LoRaWanDevice.BcdToByes(payloadBcd); // Done this way so both 
 
 			Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Receive Message RSSI:{rssi} SNR:{snr} Port:{port} Payload:{payloadBcd} PayLoadBytes:{BitConverter.ToString(payloadBytes)}");
 		}
