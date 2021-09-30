@@ -173,7 +173,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 			Result result = device.Send(MessagePort, PayloadBcd );
 #endif
 #if PAYLOAD_BYTES
-			Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} port:{MessagePort} payload Bytes:{Rak3172LoRaWanDevice.BytesToBcd(PayloadBytes)}");
+			Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} port:{MessagePort} payload bytes:{Rak3172LoRaWanDevice.BytesToBcd(PayloadBytes)}");
          Result result = device.Send(MessagePort, PayloadBytes);
 #endif
 			if (result != Result.Success)
