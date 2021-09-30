@@ -4,6 +4,14 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>devMobile.IoT.LoRaWAN.NetCore.RAK3172</RootNamespace>
+    <Authors>Bryn Lewis @KiwiBryn</Authors>
+    <Company>devMobile Software</Company>
+    <Product>RAK3172 LoRaWAN library demo client</Product>
+    <Description>RAK3172 LoRaWAN library demo application</Description>
+    <RepositoryUrl>https://github.com/KiwiBryn/RAK3172LoRaWAN-NetCore</RepositoryUrl>
+    <Copyright>devMobile Software, Apache License, Version 2.0</Copyright>
+    <PackageTags>LoRaWAN;RAK3172;RAKWireless;</PackageTags>
+    <PackageProjectUrl>https://blog.devmobile.co.nz</PackageProjectUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
