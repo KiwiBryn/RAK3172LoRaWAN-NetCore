@@ -24,9 +24,9 @@
 namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 {
 	using System;
-	using System.Threading;
-	using System.Diagnostics;
 	using System.IO.Ports;
+	using System.Threading;
+
 
 	public class Program
 	{
@@ -50,9 +50,9 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 		{
 			Result result;
 
-			Debug.WriteLine("devMobile.IoT.LoRaWAN.NetCore.RAK3172 RAK3712LoRaWANDeviceClient starting");
+			Console.WriteLine("devMobile.IoT.LoRaWAN.NetCore.RAK3172 RAK3712LoRaWANDeviceClient starting");
 
-			Debug.WriteLine($"Serial ports:{String.Join(",", SerialPort.GetPortNames())}");
+			Console.WriteLine($"Serial ports:{String.Join(",", SerialPort.GetPortNames())}");
 
 			try
 			{
@@ -61,7 +61,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 					result = device.Initialise(SerialPortId, 9600, Parity.None, 8, StopBits.One);
 					if (result != Result.Success)
 					{
-						Debug.WriteLine($"Initialise failed {result}");
+						Console.WriteLine($"Initialise failed {result}");
 						return;
 					}
 
@@ -73,90 +73,89 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 					device.OnMessageConfirmation += OnMessageConfirmationHandler;
 #endif
 
-					Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Class {Class}");
+					Console.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Class {Class}");
 					result = device.Class(Class);
 					if (result != Result.Success)
 					{
-						Debug.WriteLine($"Region failed {result}");
+						Console.WriteLine($"Class failed {result}");
 						return;
 					}
 
-
-					Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Band {Band}");
+					Console.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Band {Band}");
 					result = device.Band(Band);
 					if (result != Result.Success)
 					{
-						Debug.WriteLine($"Region failed {result}");
+						Console.WriteLine($"Region failed {result}");
 						return;
 					}
 
-					Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} ADR On");
+					Console.WriteLine($"{DateTime.UtcNow:hh:mm:ss} ADR On");
 					result = device.AdrOn();
 					if (result != Result.Success)
 					{
-						Debug.WriteLine($"ADR on failed {result}");
+						Console.WriteLine($"ADR on failed {result}");
 						return;
 					}
 
 #if CONFIRMED
-               Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Confirmed");
+               Console.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Confirmed");
                result = device.Confirm(LoRaConfirmType.Confirmed);
                if (result != Result.Success)
                {
-                  Debug.WriteLine($"Confirm on failed {result}");
+                  Console.WriteLine($"Confirm on failed {result}");
                   return;
                }
 #else
-					Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Unconfirmed");
+					Console.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Unconfirmed");
 					result = device.Confirm(LoRaConfirmType.Unconfirmed);
 					if (result != Result.Success)
 					{
-						Debug.WriteLine($"Confirm off failed {result}");
+						Console.WriteLine($"Confirm off failed {result}");
 						return;
 					}
 #endif
 
 #if OTAA
-					Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} OTAA");
+					Console.WriteLine($"{DateTime.UtcNow:hh:mm:ss} OTAA");
 					result = device.OtaaInitialise(Config.AppEui, Config.AppKey);
 					if (result != Result.Success)
 					{
-						Debug.WriteLine($"OTAA Initialise failed {result}");
+						Console.WriteLine($"OTAA Initialise failed {result}");
 						return;
 					}
 #endif
 
 #if ABP
-               Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} ABP");
+               Console.WriteLine($"{DateTime.UtcNow:hh:mm:ss} ABP");
                result = device.AbpInitialise(Config.DevAddress, Config.NwksKey, Config.AppsKey);
                if (result != Result.Success)
                {
-                  Debug.WriteLine($"ABP Initialise failed {result}");
+                  Console.WriteLine($"ABP Initialise failed {result}");
                   return;
                }
 #endif
 
-					Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Join start");
+					Console.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Join start");
 					result = device.Join(JoinRetryAttempts, JoinRetryIntervalSeconds);
 					if (result != Result.Success)
 					{
-						Debug.WriteLine($"Join failed {result}");
+						Console.WriteLine($"Join failed {result}");
 						return;
 					}
-					Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Join started");
+					Console.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Join started");
 
 					Thread.Sleep(Timeout.Infinite);
 				}
 			}
 			catch (Exception ex)
 			{
-				Debug.WriteLine(ex.Message);
+				Console.WriteLine(ex.Message);
 			}
 		}
 
 		private static void OnJoinCompletionHandler(bool result)
 		{
-			Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Join finished:{result}");
+			Console.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Join finished:{result}");
 
 			if (result)
 			{ 
@@ -169,23 +168,23 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 			Rak3172LoRaWanDevice device = (Rak3172LoRaWanDevice)state;
 
 #if PAYLOAD_BCD
-			Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} port:{MessagePort} payload BCD:{PayloadBcd}");
+			Console.WriteLine($"{DateTime.UtcNow:hh:mm:ss} port:{MessagePort} payload BCD:{PayloadBcd}");
 			Result result = device.Send(MessagePort, PayloadBcd );
 #endif
 #if PAYLOAD_BYTES
-			Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} port:{MessagePort} payload bytes:{Rak3172LoRaWanDevice.BytesToBcd(PayloadBytes)}");
+			Console.WriteLine($"{DateTime.UtcNow:hh:mm:ss} port:{MessagePort} payload bytes:{Rak3172LoRaWanDevice.BytesToBcd(PayloadBytes)}");
          Result result = device.Send(MessagePort, PayloadBytes);
 #endif
 			if (result != Result.Success)
 			{
-				Debug.WriteLine($"Send failed {result}");
+				Console.WriteLine($"Send failed {result}");
 			}
 		}
 
 #if CONFIRMED
 		private static void OnMessageConfirmationHandler()
       {
-			Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Send successful");
+			Console.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Send successful");
 		}
 #endif
 
@@ -193,7 +192,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 		{
 			byte[] payloadBytes = Rak3172LoRaWanDevice.BcdToByes(payloadBcd); // Done this way so both 
 
-			Debug.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Receive Message RSSI:{rssi} SNR:{snr} Port:{port} Payload:{payloadBcd} PayLoadBytes:{BitConverter.ToString(payloadBytes)}");
+			Console.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Receive Message RSSI:{rssi} SNR:{snr} Port:{port} Payload:{payloadBcd} PayLoadBytes:{BitConverter.ToString(payloadBytes)}");
 		}
 	}
 }
