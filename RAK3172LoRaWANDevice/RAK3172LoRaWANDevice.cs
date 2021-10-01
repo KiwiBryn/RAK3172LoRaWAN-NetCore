@@ -602,7 +602,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 
 			if (command == string.Empty)
 			{
-				throw new ArgumentException($"command invalid length cannot be empty", nameof(command));
+				throw new ArgumentException($"command cannot be empty", nameof(command));
 			}
 
 			serialDevice.WriteLine(command);
