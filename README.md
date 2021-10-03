@@ -7,7 +7,8 @@ This repo has the source code for the series of blog posts written as I work on 
 01. [Basic connectivity](http://blog.devmobile.co.nz/2021/09/19/net-core-rak3172-lorawan-library-part1/)
 02. [Nasty OTAA connect](http://blog.devmobile.co.nz/2021/09/20/net-core-rak3172-lorawan-library-part2/)
 03. [Nasty ABP connect](https://blog.devmobile.co.nz/2021/09/20/net-core-rak3172-lorawan-library-part3/)
-04. [Starting again with Threads](http://blog.devmobile.co.nz/2021/09/27/net-core-rak3172-lorawan-library-part4/)
+04. [Starting again with Threads](https://blog.devmobile.co.nz/2021/09/27/net-core-rak3172-lorawan-library-part4/)
+05. [The massive refactor](https://blog.devmobile.co.nz/2021/10/03/net-core-rak3172-lorawan-library-part5/)
 
 I used a [Grove Base HAT for Raspberry Pi](https://www.seeedstudio.com/Grove-Base-Hat-for-Raspberry-Pi.html) and [RAK3172 Breakout](https://store.rakwireless.com/products/wisduo-breakout-board-rak3272s) for development
 
