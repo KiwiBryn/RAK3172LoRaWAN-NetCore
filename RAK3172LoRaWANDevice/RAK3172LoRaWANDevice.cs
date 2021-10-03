@@ -26,7 +26,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 	/// <summary>
 	/// The LoRaWAN device classes. From The Things Network definitions
 	/// </summary>
-	public enum LoRaClass
+	public enum LoRaWANDeviceClass
 	{
 		Undefined = 0,
 		/// <summary>
@@ -81,7 +81,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 		/// </summary>
 		ParameterOverflow,
 		/// <summary>
-		/// Module is not yet joined to a network.
+		/// Device is not yet joined to a network.
 		/// </summary>
 		NotJoined,
 		/// <summary>
@@ -271,23 +271,23 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 		/// <summary>
 		/// Sets the LoRaWAN device class.
 		/// </summary>
-		/// <param name="loRaClass" cref="LoRaClass">The LoRaWAN class</param>
+		/// <param name="loRaClass" cref="LoRaWANDeviceClass">The LoRaWAN device class</param>
 		/// <exception cref="System.IO.ArgumentException">The loRaClass is invalid.</exception>
 		/// <returns><see cref="Result"/> of the operation.</returns>
 
-		public Result Class(LoRaClass loRaClass)
+		public Result Class(LoRaWANDeviceClass loRaClass)
 		{
 			string command;
 
 			switch (loRaClass)
 			{
-				case LoRaClass.A:
+				case LoRaWANDeviceClass.A:
 					command = "AT+CLASS=A";
 					break;
-				case LoRaClass.B:
+				case LoRaWANDeviceClass.B:
 					command = "AT+CLASS=B";
 					break;
-				case LoRaClass.C:
+				case LoRaWANDeviceClass.C:
 					command = "AT+CLASS=C";
 					break;
 				default:
