@@ -43,7 +43,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 		private const string PayloadBcd = "48656c6c6f204c6f526157414e"; // Hello LoRaWAN in BCD
 #endif
 #if PAYLOAD_BYTES
-		private static readonly byte[] PayloadBytes = { 0x65 , 0x6c, 0x6c, 0x6f, 0x20, 0x4c, 0x6f, 0x52, 0x61, 0x57, 0x41, 0x4e}; // Hello LoRaWAN in bytes
+		private static readonly byte[] PayloadBytes = { 0x48, 0x65 , 0x6c, 0x6c, 0x6f, 0x20, 0x4c, 0x6f, 0x52, 0x61, 0x57, 0x41, 0x4e}; // Hello LoRaWAN in bytes
 #endif
 
 		public static void Main()
@@ -73,6 +73,16 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 					device.OnMessageConfirmation += OnMessageConfirmationHandler;
 #endif
 
+#if DEVEUI_SET
+					Console.WriteLine($"{DateTime.UtcNow:hh:mm:ss} DevEUI {Config.devEui}");
+					result = device.DeviceEui(Config.devEui);
+					if (result != Result.Success)
+					{
+						Console.WriteLine($"DevEUI failed {result}");
+						return;
+					}
+#endif
+
 					Console.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Class {Class}");
 					result = device.Class(Class);
 					if (result != Result.Success)
@@ -99,7 +109,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 
 #if CONFIRMED
                Console.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Confirmed");
-               result = device.Confirm(LoRaConfirmType.Confirmed);
+               result = device.UplinkMessageConfirmationOn();
                if (result != Result.Success)
                {
                   Console.WriteLine($"Confirm on failed {result}");
@@ -107,7 +117,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
                }
 #else
 					Console.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Unconfirmed");
-					result = device.Confirm(LoRaConfirmType.Unconfirmed);
+					result = device.UplinkMessageConfirmationOff();
 					if (result != Result.Success)
 					{
 						Console.WriteLine($"Confirm off failed {result}");
@@ -188,11 +198,11 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 		}
 #endif
 
-		private static void OnReceiveMessageHandler(int port, int rssi, int snr, string payloadBcd)
+		private static void OnReceiveMessageHandler(byte port, int rssi, int snr, string payload)
 		{
-			byte[] payloadBytes = Rak3172LoRaWanDevice.BcdToByes(payloadBcd); // Done this way so both 
+			byte[] payloadBytes = Rak3172LoRaWanDevice.HexToByes(payload); // Done this way so both conversion methods tested
 
-			Console.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Receive Message RSSI:{rssi} SNR:{snr} Port:{port} Payload:{payloadBcd} PayLoadBytes:{BitConverter.ToString(payloadBytes)}");
+			Console.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Receive Message RSSI:{rssi} SNR:{snr} Port:{port} Payload:{payload} PayLoadBytes:{BitConverter.ToString(payloadBytes)}");
 		}
 	}
 }

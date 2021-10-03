@@ -235,6 +235,40 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 		}
 
 		/// <summary>
+		/// Sets the DeviceEUI
+		/// </summary>
+		/// <param name="deviceEui">The device EUI.</param>
+		/// <exception cref="ArgumentNullException">The band value is null.</exception>
+		/// <exception cref="System.IO.ArgumentException">The deviceEui length is incorrect.</exception>
+		/// <returns><see cref="Result"/> of the operation.</returns>
+		public Result DeviceEui(string deviceEui)
+		{
+			if (deviceEui == null)
+			{
+				throw new ArgumentNullException(nameof(deviceEui), $"DeviceEUI is invalid");
+			}
+
+			if (deviceEui.Length != DevEuiLength)
+			{
+				throw new ArgumentException($"DevEUI invalid length must be {DevEuiLength} characters", nameof(deviceEui));
+			}
+
+#if DIAGNOSTICS
+			Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+DEVEUI={deviceEui}");
+#endif
+			Result result = SendCommand($"AT+DEVEUI={deviceEui}");
+			if (result != Result.Success)
+			{
+#if DIAGNOSTICS
+				Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+DEVEUI failed {result}");
+#endif
+				return result;
+			}
+
+			return Result.Success;
+		}
+
+		/// <summary>
 		/// Sets the LoRaWAN device class.
 		/// </summary>
 		/// <param name="loRaClass" cref="LoRaClass">The LoRaWAN class</param>

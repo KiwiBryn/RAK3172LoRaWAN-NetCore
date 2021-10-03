@@ -18,6 +18,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 {
    public class Config
    {
+      public const string devEui = "...";
 #if OTAA
       public const string AppEui = "...";
       public const string AppKey = "...";
