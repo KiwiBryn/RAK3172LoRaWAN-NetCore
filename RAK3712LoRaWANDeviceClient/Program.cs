@@ -127,7 +127,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 
 #if OTAA
 					Console.WriteLine($"{DateTime.UtcNow:hh:mm:ss} OTAA");
-					result = device.OtaaInitialise(Config.AppEui, Config.AppKey);
+					result = device.OtaaInitialise(Config.JoinEui, Config.AppKey);
 					if (result != Result.Success)
 					{
 						Console.WriteLine($"OTAA Initialise failed {result}");
