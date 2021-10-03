@@ -18,7 +18,9 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 {
    public class Config
    {
+#if DEVEUI_SET
       public const string devEui = "...";
+#endif
 #if OTAA
       public const string JoinEui = "...";
       public const string AppKey = "...";
@@ -27,6 +29,6 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
       public const string DevAddress = "...";
       public const string NwksKey = "...";
       public const string AppsKey = "...";
-#endif   
+#endif
    }
 }
