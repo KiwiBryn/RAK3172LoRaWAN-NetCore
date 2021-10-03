@@ -13,12 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Must have one of following options defined in the nfproj file
+// Must have one of following options defined in the project\build definitions
 //    PAYLOAD_BCD or PAYLOAD_BYTES
 //    OTAA or ABP
 //
 // Optional definitions
 //    CONFIRMED For confirmed messages
+//		DEVEUI_SET
 //
 //---------------------------------------------------------------------------------
 namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172

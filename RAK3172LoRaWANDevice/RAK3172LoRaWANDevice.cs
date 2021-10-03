@@ -172,7 +172,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 		/// <param name="port">LoRaWAN Port number.</param>
 		/// <param name="rssi">Received Signal Strength Indicator(RSSI).</param>
 		/// <param name="snr">Signal to Noise Ratio(SNR).</param>
-		/// <param name="payload">Hexidecimal representation of payload.</param>
+		/// <param name="payload">Hexadecimal representation of payload.</param>
 		public delegate void ReceiveMessageHandler(byte port, int rssi, int snr, string payload);
 		public ReceiveMessageHandler OnReceiveMessage;
 
@@ -626,10 +626,10 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 		}
 
 		/// <summary>
-		/// Sends an uplink message in hexidecimal format
+		/// Sends an uplink message in Hexadecimal format
 		/// </summary>
 		/// <param name="port">LoRaWAN Port number.</param>
-		/// <param name="payload">Hexidecimal encoded bytes to send</param>
+		/// <param name="payload">Hexadecimal encoded bytes to send</param>
 		/// <exception cref="ArgumentNullException">The payload string is null.</exception>
 		/// <exception cref="ArgumentException">The payload string must be a multiple of 2 characters long.</exception>
 		/// <exception cref="ArgumentException">The port is number is out of range must be <see cref="MessagePortMinimumValue"/> to <see cref="MessagePortMaximumValue"/>.</exception>
@@ -686,7 +686,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 				throw new ArgumentNullException(nameof(payload));
 			}
 
-			string payloadHex = BytesToHexidecimcal(payload);
+			string payloadHex = BytesToHex(payload);
 
 			// Send message the network
 #if DIAGNOSTICS
@@ -847,12 +847,12 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 		// Utility functions for clients for processing messages payloads to be send, ands messages payloads received.
 
 		/// <summary>
-		/// Converts an array of byes to a hexidecimal string.
+		/// Converts an array of byes to a hexadecimal string.
 		/// </summary>
 		/// <param name="payloadBytes"></param>
 		/// <exception cref="ArgumentNullException">The array of bytes is null.</exception>
 		/// <returns>String containing hex encoded bytes</returns>
-		public static string BytesToHexidecimcal(byte[] payloadBytes)
+		public static string BytesToHex(byte[] payloadBytes)
 		{
 			if (payloadBytes == null)
 			{
@@ -863,13 +863,13 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 		}
 
 		/// <summary>
-		/// Converts a hexidecimal string to an array of bytes.
+		/// Converts a hexadecimal string to an array of bytes.
 		/// </summary>
 		/// <param name="payload">array of bytes encoded as hex</param>
-		/// <exception cref="ArgumentNullException">The Hexidecimal string is null.</exception>
-		/// <exception cref="ArgumentException">The Hexidecimal string is not at even number of characters.</exception>
-		/// <exception cref="System.FormatException">The Hexidecimal string contains some invalid characters.</exception>
-		/// <returns>Array of bytes parsed from Hexidecimal string.</returns>
+		/// <exception cref="ArgumentNullException">The Hexadecimal string is null.</exception>
+		/// <exception cref="ArgumentException">The Hexadecimal string is not at even number of characters.</exception>
+		/// <exception cref="System.FormatException">The Hexadecimal string contains some invalid characters.</exception>
+		/// <returns>Array of bytes parsed from Hexadecimal string.</returns>
 		public static byte[] HexToByes(string payload)
 		{
 			if (payload == null)
