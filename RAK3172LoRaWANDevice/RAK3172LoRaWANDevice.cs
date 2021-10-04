@@ -124,8 +124,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 		/// </summary>
 		public const byte DevAddrLength = 8;
 		/// <summary>
-		/// The DevAddr is a 32 bits identifier for the end-device within the current network. This key must be unique 
-		/// for each device. This is represented by an 8 character long string
+		/// After activation, the Network Session Key(NwkSKey) is used to secure messages which do not carry a payload.
 		/// </summary>
 		public const byte NwsKeyLength = 32;
 		/// <summary>
