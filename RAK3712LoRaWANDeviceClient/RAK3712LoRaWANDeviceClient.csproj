@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE;OTAA,PAYLOAD_BCD</DefineConstants>
+    <DefineConstants>TRACE;OTAA,PAYLOAD_BYTES</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
