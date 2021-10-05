@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 // Must have one of following options defined in the project\build definitions
-//    PAYLOAD_BCD or PAYLOAD_BYTES
+//    PAYLOAD_HEX or PAYLOAD_BYTES
 //    OTAA or ABP
 //
 // Optional definitions
@@ -40,8 +40,8 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 		private static Timer MessageSendTimer ;
 		private const int JoinRetryAttempts = 2;
 		private const int JoinRetryIntervalSeconds = 10;
-#if PAYLOAD_BCD
-		private const string PayloadBcd = "48656c6c6f204c6f526157414e"; // Hello LoRaWAN in BCD
+#if PAYLOAD_HEX
+		private const string PayloadHex = "48656c6c6f204c6f526157414e"; // Hello LoRaWAN in HEX
 #endif
 #if PAYLOAD_BYTES
 		private static readonly byte[] PayloadBytes = { 0x48, 0x65 , 0x6c, 0x6c, 0x6f, 0x20, 0x4c, 0x6f, 0x52, 0x61, 0x57, 0x41, 0x4e}; // Hello LoRaWAN in bytes
@@ -178,12 +178,12 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 		{
 			Rak3172LoRaWanDevice device = (Rak3172LoRaWanDevice)state;
 
-#if PAYLOAD_BCD
-			Console.WriteLine($"{DateTime.UtcNow:hh:mm:ss} port:{MessagePort} payload BCD:{PayloadBcd}");
-			Result result = device.Send(MessagePort, PayloadBcd );
+#if PAYLOAD_HEX
+			Console.WriteLine($"{DateTime.UtcNow:hh:mm:ss} port:{MessagePort} payload HEX:{PayloadHex}");
+			Result result = device.Send(MessagePort, PayloadHex );
 #endif
 #if PAYLOAD_BYTES
-			Console.WriteLine($"{DateTime.UtcNow:hh:mm:ss} port:{MessagePort} payload bytes:{Rak3172LoRaWanDevice.BytesToBcd(PayloadBytes)}");
+			Console.WriteLine($"{DateTime.UtcNow:hh:mm:ss} port:{MessagePort} payload bytes:{Rak3172LoRaWanDevice.BytesToHex(PayloadBytes)}");
          Result result = device.Send(MessagePort, PayloadBytes);
 #endif
 			if (result != Result.Success)
