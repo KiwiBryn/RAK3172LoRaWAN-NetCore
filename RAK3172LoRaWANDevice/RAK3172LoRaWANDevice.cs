@@ -149,6 +149,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 
 		private SerialPort serialDevice = null;
 		private const int CommandTimeoutDefaultmSec = 1500;
+		private const int ReceiveTimeoutDefaultmSec = 10000;
 		private Thread CommandResponsesProcessorThread = null;
 		private Boolean CommandProcessResponses = true;
 		private readonly AutoResetEvent CommandResponseExpectedEvent;
@@ -207,7 +208,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 
 			serialDevice.NewLine = "\r\n";
 
-			serialDevice.ReadTimeout = CommandTimeoutDefaultmSec;
+			serialDevice.ReadTimeout = ReceiveTimeoutDefaultmSec;
 
 			serialDevice.Open();
 			// clear out the input buffer.
