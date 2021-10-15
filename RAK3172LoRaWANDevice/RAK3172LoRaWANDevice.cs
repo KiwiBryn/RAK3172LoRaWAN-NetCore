@@ -139,7 +139,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 		public const byte MessagePortMinimumValue = 1;
 		/// <summary>
 		/// The maximum supported port number. Port 224 is used for the LoRaWAN Mac layer test protocol. Ports 
-		/// 225…255 are reserved for future application extensions.
+		/// 223…255 are reserved for future application extensions.
 		/// </summary>
 		public const byte MessagePortMaximumValue = 223;
 		/// <summary>
@@ -158,7 +158,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 		/// <summary>
 		/// Event handler called when network join process completed.
 		/// </summary>
-		/// <param name="joinSuccessful">Was the newtork join attempt successful</param>
+		/// <param name="joinSuccessful">Was the network join attempt successful</param>
 		public delegate void JoinCompletionHandler(bool joinSuccessful);
 		public JoinCompletionHandler OnJoinCompletion;
 		/// <summary>
@@ -238,7 +238,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 		/// Sets the DeviceEUI
 		/// </summary>
 		/// <param name="deviceEui">The device EUI.</param>
-		/// <exception cref="ArgumentNullException">The band value is null.</exception>
+		/// <exception cref="ArgumentNullException">The device EUI value is null.</exception>
 		/// <exception cref="System.IO.ArgumentException">The deviceEui length is incorrect.</exception>
 		/// <returns><see cref="Result"/> of the operation.</returns>
 		public Result DeviceEui(string deviceEui)
