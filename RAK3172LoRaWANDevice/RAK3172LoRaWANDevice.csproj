@@ -12,7 +12,7 @@
     <Copyright>devMobile Software, Apache License, Version 2.0</Copyright>
     <PackageReleaseNotes />
     <RepositoryUrl>https://github.com/KiwiBryn/RAK3172LoRaWAN-NetCore</RepositoryUrl>
-    <PackageTags>LoRaWAN;RAK3172;RAKWireless;</PackageTags>
+    <PackageTags>LoRaWAN,RAK83172, RAKWireless,dotnetcore, .net, .net-core, dot-net-core</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
