@@ -40,6 +40,8 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 		private static Timer MessageSendTimer ;
 		private const int JoinRetryAttempts = 2;
 		private const int JoinRetryIntervalSeconds = 10;
+		private const int JoinTimeoutmSec = 20000;
+
 #if PAYLOAD_HEX
 		private const string PayloadHex = "48656c6c6f204c6f526157414e"; // Hello LoRaWAN in HEX
 #endif
@@ -147,7 +149,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 #endif
 
 					Console.WriteLine($"{DateTime.UtcNow:hh:mm:ss} Join start");
-					result = device.Join(JoinRetryAttempts, JoinRetryIntervalSeconds);
+					result = device.Join(JoinRetryAttempts, JoinRetryIntervalSeconds, JoinTimeoutmSec);
 					if (result != Result.Success)
 					{
 						Console.WriteLine($"Join failed {result}");

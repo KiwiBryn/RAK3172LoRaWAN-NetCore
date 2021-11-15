@@ -603,7 +603,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 		/// <param name="JoinAttempts">Number of attempts made to join the network</param>
 		/// <param name="retryIntervalSeconds">Delay between attempts to join the network</param>
 		/// <returns><see cref="Result"/> of the operation.</returns>
-		public Result Join(byte JoinAttempts = 0, byte retryIntervalSeconds = 8)
+		public Result Join(byte JoinAttempts = 0, byte retryIntervalSeconds = 8, int joinTimeoutmSec = CommandTimeoutDefaultmSec)
 		{
 			if (retryIntervalSeconds < JoinRetryIntervalMinimum)
 			{
@@ -613,7 +613,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 #if DIAGNOSTICS
          Debug.WriteLine($" {DateTime.UtcNow:hh:mm:ss} AT+JOIN");
 #endif
-			Result result = SendCommand($"AT+JOIN=1:0:{retryIntervalSeconds}:{JoinAttempts}");
+			Result result = SendCommand($"AT+JOIN=1:0:{retryIntervalSeconds}:{JoinAttempts}", joinTimeoutmSec);
 			if (result != Result.Success)
 			{
 #if DIAGNOSTICS
@@ -704,7 +704,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 			return Result.Success;
 		}
 
-		private Result SendCommand(string command)
+		private Result SendCommand(string command, int commandTimeoutDefaultmSec = CommandTimeoutDefaultmSec)
 		{
 			if (command == null)
 			{
@@ -720,7 +720,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 
 			this.CommandResponseExpectedEvent.Reset();
 
-			if (!this.CommandResponseExpectedEvent.WaitOne(CommandTimeoutDefaultmSec, false))
+			if (!this.CommandResponseExpectedEvent.WaitOne(commandTimeoutDefaultmSec, false))
 			{
 				return Result.Timeout;
 			}
