@@ -786,7 +786,7 @@ namespace devMobile.IoT.LoRaWAN.NetCore.RAK3172
 #if DIAGNOSTICS
 						Debug.WriteLine($" {DateTime.UtcNow:HH:mm:ss} Payload:{line}");
 #endif
-						// TODO beef up validation, nto certain what todo if borked
+						// TODO beef up validation, not certain what todo if borked
 						string[] payloadFields = line.Split(':');
 
 						byte port = byte.Parse(payloadFields[1]);
