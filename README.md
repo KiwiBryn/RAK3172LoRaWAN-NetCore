@@ -1,4 +1,4 @@
-# RAK3172LoRaWAN-NetCore - WARNING This library is for an retired firmware
+# RAK3172LoRaWAN-NetCore - WARNING This library is for firmware that has been retired
 C# RAK3172 LoRaWAN library for .Net Core powered devices
 A C# library for [LoRaWAN](https://lora-alliance.org/about-lorawan) connectivity for [RAKwireless](https://www.rakwireless.com/en-us) [RAK3172 Module](https://www.rakwireless.com/en-us/products/lpwan-modules/rak3172-wisduo-lpwan-module) equipped [.Net Core 5](https://dotnet.microsoft.com/) powered devices.
 
